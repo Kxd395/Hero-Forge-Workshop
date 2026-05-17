@@ -1,0 +1,33 @@
+{
+  "sourceName": "Superpower List Database",
+  "sourceUrl": "https://github.com/justinmahar/superpowerlistdb",
+  "csvUrl": "https://raw.githubusercontent.com/justinmahar/superpowerlistdb/master/superpowers.csv",
+  "attribution": "Copyright © Justin Mahar | The Superpower List",
+  "importedAt": "2026-05-17T18:50:56.764Z",
+  "totalRecords": 12798,
+  "stateCounts": {
+    "published": 8531,
+    "rejected": 4134,
+    "edited": 19,
+    "resubmitted": 17,
+    "submitted": 97
+  },
+  "fields": [
+    "sourceId",
+    "name",
+    "overview",
+    "description",
+    "pros",
+    "cons",
+    "tags",
+    "state",
+    "preferenceRatio",
+    "timesPreferred",
+    "timesRejected",
+    "totalComparisons",
+    "createdAt",
+    "updatedAt",
+    "lastComparedAt",
+    "username"
+  ]
+}
