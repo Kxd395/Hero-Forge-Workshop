@@ -60,6 +60,14 @@ Smoke-test at the dev server URL:
 - Save draft does not throw.
 - Export text is populated.
 
+To run the browser smoke suite against a deployed preview URL:
+
+```bash
+PLAYWRIGHT_BASE_URL=https://your-preview-url.vercel.app npm run test:e2e
+```
+
+If Vercel Deployment Protection is enabled, unauthenticated Playwright runs will see the Vercel login page instead of the app. In that case, either run the suite against a public production deployment after approval, disable protection for the preview, or configure a proper Vercel protection bypass token before using remote browser smoke tests.
+
 ## Deploy Path
 
 1. Verify local preflight.
@@ -67,8 +75,9 @@ Smoke-test at the dev server URL:
 3. Commit a focused change.
 4. Push to `main`.
 5. Let Vercel build from GitHub.
-6. Open the production URL after deployment.
-7. Run the smoke test against production.
+6. Open the preview URL after deployment.
+7. Run the smoke test against preview with `PLAYWRIGHT_BASE_URL=<preview-url> npm run test:e2e`.
+8. Promote to production only after explicit approval.
 
 ## Rollback
 

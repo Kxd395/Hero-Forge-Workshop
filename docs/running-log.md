@@ -94,6 +94,8 @@ This is the working log for active Hero Forge Workshop changes. Add short entrie
 - Updated deployment docs to use `npm run verify`.
 - Added Playwright artifact folders to `.gitignore`.
 - Added `docs/mvp-stabilization-report.md` with checkpoint, preview URL, verification state, data state, risks, next steps, and rollback.
+- Added `PLAYWRIGHT_BASE_URL` support for running Playwright smoke tests against deployed preview URLs.
+- Attempted remote Playwright smoke against the Vercel preview; blocked by Vercel Deployment Protection login page.
 
 ## Active Work Queue
 

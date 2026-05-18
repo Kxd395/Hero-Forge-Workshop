@@ -28,6 +28,14 @@ Preview deployment:
 https://hero-forge-workshop-ce3a1t199-kxd395s-projects.vercel.app
 ```
 
+Remote smoke command:
+
+```bash
+PLAYWRIGHT_BASE_URL=https://hero-forge-workshop-ce3a1t199-kxd395s-projects.vercel.app npm run test:e2e
+```
+
+Preview smoke status: blocked by Vercel Deployment Protection. The preview URL served the Vercel login page to unauthenticated Playwright, so hosted browser smoke tests require a public target or a configured Vercel protection bypass.
+
 Production deployment was not promoted. Use an explicit production deploy command only after preview smoke testing.
 
 ## Current Product State
