@@ -142,6 +142,20 @@ const VIEWS = [
   { id: "sources", label: "Data Sources", icon: Database }
 ];
 
+const RANKING_DISTRIBUTION_LABELS = {
+  rating: "Rating",
+  risk: "Risk",
+  bestRole: "Best role",
+  confidence: "Confidence"
+};
+
+function formatDistributionLabel(value) {
+  return String(value || "")
+    .split("-")
+    .map((part) => `${part.charAt(0).toUpperCase()}${part.slice(1)}`)
+    .join(" ");
+}
+
 // ---------------------------------------------------------------------------
 // Hook: load + normalize imported power pool once
 // ---------------------------------------------------------------------------
@@ -1665,6 +1679,27 @@ function SourcesView({ rankingManifest, importedSource }) {
                 </div>
               ))}
             </dl>
+          )}
+          {rankingManifest.rankingDistribution && (
+            <div className="ranking-distribution">
+              <p className="eyebrow">Ranking Distribution</p>
+              {Object.entries(RANKING_DISTRIBUTION_LABELS).map(([group, label]) => {
+                const distribution = rankingManifest.rankingDistribution[group] ?? {};
+                return (
+                  <section key={group}>
+                    <h4>{label}</h4>
+                    <div>
+                      {Object.entries(distribution).map(([value, count]) => (
+                        <span key={value}>
+                          {formatDistributionLabel(value)}
+                          <strong>{Number(count).toLocaleString()}</strong>
+                        </span>
+                      ))}
+                    </div>
+                  </section>
+                );
+              })}
+            </div>
           )}
         </div>
       )}

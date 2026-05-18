@@ -121,6 +121,11 @@ test("shows imported quality gate counts from the ranking manifest", async ({ pa
   await expect(qualityGate.getByText(/8,370 visible imported powers/i)).toBeVisible();
   await expect(qualityGate.getByText(/161 records are hidden/i)).toBeVisible();
   await expect(qualityGate.getByText("too-broad")).toBeVisible();
+  await expect(qualityGate.getByText("Ranking Distribution")).toBeVisible();
+  await expect(qualityGate.getByText("Core")).toBeVisible();
+  await expect(qualityGate.getByText("4,591")).toBeVisible();
+  await expect(qualityGate.getByText("Legendary")).toBeVisible();
+  await expect(qualityGate.getByText("558")).toBeVisible();
 });
 
 test("falls back to the raw imported pool when enriched data is unavailable", async ({ page }) => {

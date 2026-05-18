@@ -3166,7 +3166,7 @@ button {
 
 .ranking-manifest-card {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(220px, 0.75fr);
+  grid-template-columns: minmax(0, 1fr) minmax(220px, 0.75fr) minmax(280px, 1fr);
   gap: var(--space-4);
   align-items: start;
   margin-bottom: var(--space-4);
@@ -3222,6 +3222,47 @@ button {
   color: var(--warning);
   font-family: var(--font-mono);
   font-weight: 700;
+}
+
+.ranking-distribution {
+  display: grid;
+  gap: var(--space-3);
+}
+
+.ranking-distribution .eyebrow {
+  margin: 0;
+}
+
+.ranking-distribution section {
+  display: grid;
+  gap: var(--space-2);
+}
+
+.ranking-distribution h4 {
+  font-size: var(--fz-sm);
+}
+
+.ranking-distribution section > div {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.ranking-distribution span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 8px;
+  color: var(--ink-soft);
+  background: rgb(255 255 255 / 5%);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  font-size: 11px;
+}
+
+.ranking-distribution strong {
+  color: var(--brand);
+  font-family: var(--font-mono);
 }
 
 .source-card {
