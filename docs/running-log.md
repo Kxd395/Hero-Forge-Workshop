@@ -93,6 +93,7 @@ This is the working log for active Hero Forge Workshop changes. Add short entrie
 - Added `npm run verify` as the consolidated release gate.
 - Updated deployment docs to use `npm run verify`.
 - Added Playwright artifact folders to `.gitignore`.
+- Added `docs/mvp-stabilization-report.md` with checkpoint, preview URL, verification state, data state, risks, next steps, and rollback.
 
 ## Active Work Queue
 

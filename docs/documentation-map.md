@@ -33,6 +33,7 @@ This file tracks what documentation exists, what is missing, and which docs shou
 | `docs/ai-generation-plan.md` | Current | Future server-side AI generation boundary, schema, safety, cost control, and rollback |
 | `docs/content-quality-filters.md` | Current | Target moderation flags, visibility behavior, enrichment order, release checks, and rollback |
 | `docs/mobile-visual-qa.md` | Current | Mobile viewport targets, visual risk areas, screenshot targets, and release gates |
+| `docs/mvp-stabilization-report.md` | Current | Stabilization checkpoint, preview deployment, verification, data state, and remaining production risks |
 | `docs/review/hero-forge-ranking-handoff/` | External review | GPT 5.5 Pro ranking refactor handoff and acceptance notes |
 | `docs/adr-0001-power-catalog-scaffold.md` | Historical | Why the initial structured catalog was created |
 | `docs/adr-0002-data-source-strategy.md` | Current | Why external sources stay metadata-only until integration is intentional |
