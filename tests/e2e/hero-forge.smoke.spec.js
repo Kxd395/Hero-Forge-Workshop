@@ -9,6 +9,20 @@ test("loads the enriched power library without public score chips", async ({ pag
   await expect(page.getByText(/High Risk|Medium Risk|Low Risk|Extreme Risk/).first()).toBeVisible();
 });
 
+test("loads imported powers from chunks without requesting the monolithic enriched payload", async ({ page }) => {
+  const requestedUrls = [];
+  page.on("request", (request) => {
+    const url = request.url();
+    if (url.includes("/data/")) requestedUrls.push(url);
+  });
+
+  await page.goto("/");
+
+  await expect(page.getByText(/imported\s+8,370/i)).toBeVisible();
+  expect(requestedUrls.some((url) => url.includes("/data/imported-powers/"))).toBe(true);
+  expect(requestedUrls.some((url) => url.includes("/data/superpower-list-enriched.json"))).toBe(false);
+});
+
 test("searches, assigns a primary power, and shows slot feedback", async ({ page }) => {
   await page.goto("/");
 

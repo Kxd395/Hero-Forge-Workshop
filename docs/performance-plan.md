@@ -75,7 +75,7 @@ Use this order. Do not add infrastructure before measurement proves it is needed
 3. Memoize derived category/source/subcategory counts.
 4. Add indexed search fields at import time.
 5. Split imported data by category. Completed: `public/data/imported-powers/*.json`.
-6. Load category chunks on demand. Partial: loader can consume chunks, but currently loads all chunks to preserve global search.
+6. Load category chunks on demand. Partial: default startup loads category chunks instead of the monolith, but currently loads all chunks to preserve global search.
 7. Move search to a worker if the main thread becomes visibly blocked.
 8. Add server-backed search only when the static app model is no longer sufficient.
 

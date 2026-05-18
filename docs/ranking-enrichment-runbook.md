@@ -59,7 +59,7 @@ Current known run:
 - Enriched imported records: `8,531`
 - Default-visible records: `8,370`
 - Public enriched payload: about `13 MB` uncompressed, `2.64 MB` gzip
-- Category chunks: `10` files, largest about `4.19 MB` uncompressed / `820 KB` gzip
+- Category chunks: `10` files, largest about `4.19 MB` uncompressed / `820 KB` gzip, total about `2.55 MB` gzip
 - Ranking audit payload: about `12 MB` uncompressed
 - Hidden-review payload: about `67 KB` uncompressed, `5 KB` gzip
 
@@ -85,6 +85,7 @@ Check:
 - Manifest `rankingDistribution` shows a plausible spread across rating, risk, role, and confidence labels.
 - Manifest `hiddenReviewFile` points to `public/data/superpower-list-hidden-review.json`.
 - Manifest `enrichedChunks` points to category chunk files and the chunk counts match the monolithic enriched payload.
+- The largest category chunk stays under the `1 MB` gzip audit budget.
 - Hidden-review record count matches `hiddenRecords`.
 - Current display-rating distribution is approximately `4,591` core, `3,382` advanced, and `558` legendary.
 - Enriched records use `ranking.rating`, not `ranking.tier`.

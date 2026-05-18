@@ -112,6 +112,8 @@ This is the working log for active Hero Forge Workshop changes. Add short entrie
 - Added category-level enriched chunks under `public/data/imported-powers/` and manifest `enrichedChunks` metadata.
 - Updated the imported library loader to prefer category chunks, fall back to the monolithic enriched payload, and finally fall back to the raw imported pool.
 - Added Playwright fallback coverage for chunk failure and enriched-payload failure.
+- Added a browser regression test proving normal startup uses chunk files without requesting `superpower-list-enriched.json`.
+- Added a 1 MB gzip budget for the largest category chunk in `npm run audit:powers`.
 
 ## Active Work Queue
 

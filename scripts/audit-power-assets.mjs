@@ -8,6 +8,7 @@ const MANIFEST_PATH = new URL("../public/data/superpower-list-ranking-manifest.j
 
 const BUDGETS = {
   enrichedGzipBytes: 3.5 * 1024 * 1024,
+  largestChunkGzipBytes: 1 * 1024 * 1024,
   auditGzipBytes: 5 * 1024 * 1024,
   hiddenReviewGzipBytes: 250 * 1024
 };
@@ -46,6 +47,8 @@ const hiddenRecords = enriched.length - visibleRecords;
 const enrichedGzipBytes = gzipSize(enrichedText);
 const auditGzipBytes = gzipSize(auditText);
 const hiddenReviewGzipBytes = gzipSize(hiddenReviewText);
+const chunkGzipBytes = chunkTexts.map((text) => gzipSize(text));
+const largestChunkGzipBytes = Math.max(0, ...chunkGzipBytes);
 const failures = [];
 
 assert(Array.isArray(enriched), "enriched payload must be an array", failures);
@@ -68,6 +71,7 @@ for (const [index, chunk] of (manifest.enrichedChunks ?? []).entries()) {
 assert(enrichedGzipBytes <= BUDGETS.enrichedGzipBytes, `enriched gzip size exceeds ${formatBytes(BUDGETS.enrichedGzipBytes)}`, failures);
 assert(auditGzipBytes <= BUDGETS.auditGzipBytes, `audit gzip size exceeds ${formatBytes(BUDGETS.auditGzipBytes)}`, failures);
 assert(hiddenReviewGzipBytes <= BUDGETS.hiddenReviewGzipBytes, `hidden review gzip size exceeds ${formatBytes(BUDGETS.hiddenReviewGzipBytes)}`, failures);
+assert(largestChunkGzipBytes <= BUDGETS.largestChunkGzipBytes, `largest chunk gzip size exceeds ${formatBytes(BUDGETS.largestChunkGzipBytes)}`, failures);
 
 const report = {
   totalRecords: enriched.length,
@@ -88,7 +92,8 @@ const report = {
   enrichedChunks: {
     count: chunks.length,
     largestRaw: formatBytes(Math.max(0, ...chunkTexts.map((text) => Buffer.byteLength(text)))),
-    largestGzip: formatBytes(Math.max(0, ...chunkTexts.map((text) => gzipSize(text))))
+    largestGzip: formatBytes(largestChunkGzipBytes),
+    totalGzip: formatBytes(chunkGzipBytes.reduce((total, size) => total + size, 0))
   },
   hiddenReasons: manifest.hiddenReasons ?? {},
   rankingDistribution: manifest.rankingDistribution ?? {}
