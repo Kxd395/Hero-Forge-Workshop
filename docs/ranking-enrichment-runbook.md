@@ -56,7 +56,7 @@ Current known run:
 
 - Enriched imported records: `8,531`
 - Default-visible records: `8,370`
-- Public enriched payload: about `17 MB` uncompressed
+- Public enriched payload: about `13 MB` uncompressed, `2.64 MB` gzip
 - Ranking audit payload: about `12 MB` uncompressed
 - Hidden-review payload: about `67 KB` uncompressed, `5 KB` gzip
 
@@ -85,6 +85,7 @@ Check:
 - Current display-rating distribution is approximately `4,591` core, `3,382` advanced, and `558` legendary.
 - Enriched records use `ranking.rating`, not `ranking.tier`.
 - Public enriched records do not include `ranking.evidence`.
+- Public enriched records omit heavy audit/sort fields such as `ranking.roleFit`, `ranking.sort`, and `ranking.quality`.
 - Audit records include structured evidence.
 - Power cards do not display `Score N`.
 

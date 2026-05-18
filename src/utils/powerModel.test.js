@@ -273,11 +273,19 @@ describe("ranking model", () => {
     expect(ranking.quality.reasons).toContain("too-broad");
     expect(ranking.evidence.scopeSignals.length).toBeGreaterThan(0);
     expect(stripRankingAudit(ranking).evidence).toBeUndefined();
-    expect(stripRankingAudit(ranking).quality).toMatchObject({
-      defaultVisible: true,
-      duplicateKey: "reality-anything",
-      clarity: "confusing"
+    expect(stripRankingAudit(ranking)).toMatchObject({
+      rating: "legendary",
+      scope: "expansive",
+      content: {
+        defaultVisible: true,
+        reasons: ["too-broad"]
+      },
+      constraint: {
+        requiredForPrimary: true
+      }
     });
+    expect(stripRankingAudit(ranking).quality).toBeUndefined();
+    expect(stripRankingAudit(ranking).sort).toBeUndefined();
   });
 
   it("hides imported powers with unsafe content flags", () => {

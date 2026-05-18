@@ -52,12 +52,9 @@ function buildManifest({
       "ranking.scope",
       "ranking.risk",
       "ranking.bestRole",
-      "ranking.roleFit",
       "ranking.confidence",
       "ranking.popularity",
       "ranking.constraint",
-      "ranking.sort",
-      "ranking.quality",
       "ranking.content",
       "ranking.evidenceSummary"
     ]

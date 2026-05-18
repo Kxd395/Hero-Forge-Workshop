@@ -107,6 +107,8 @@ This is the working log for active Hero Forge Workshop changes. Add short entrie
 - Added Data Sources admin UI for hidden-record review, including reason filters and evidence summaries.
 - Updated the power asset audit to validate hidden-review count and gzip budget.
 - Verified the hidden-review checkpoint with `npm run verify`: asset audit, 52 unit tests, 10 browser smoke tests, lint, and production build all passed.
+- Compacted the public ranking payload by removing heavy audit/sort fields from `ranking` while keeping labels, visibility, constraints, and evidence summaries in the browser payload.
+- Reduced `public/data/superpower-list-enriched.json` from `16.95 MB` raw / `3.02 MB` gzip to `13.19 MB` raw / `2.64 MB` gzip.
 
 ## Active Work Queue
 

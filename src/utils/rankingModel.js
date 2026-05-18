@@ -398,33 +398,22 @@ export function stripRankingAudit(ranking) {
       tags: ranking.risk.tags
     },
     bestRole: ranking.bestRole,
-    roleFit: Object.fromEntries(
-      Object.entries(ranking.roleFit).map(([slot, fit]) => [
-        slot,
-        fit.score
-      ])
-    ),
     confidence: {
       label: ranking.confidence.label
     },
     popularity: {
-      label: ranking.popularity.label,
-      smoothedScore: ranking.popularity.smoothedScore,
-      comparisonCount: ranking.popularity.comparisonCount
+      label: ranking.popularity.label
     },
-    constraint: ranking.constraint,
-    sort: ranking.sort,
-    quality: {
-      defaultVisible: ranking.quality.defaultVisible,
-      reviewed: ranking.quality.reviewed,
-      reasons: ranking.quality.reasons,
-      duplicateKey: ranking.quality.duplicateKey,
-      languageRisk: ranking.quality.languageRisk,
-      clarity: ranking.quality.clarity,
-      canonCandidate: ranking.quality.canonCandidate,
-      flags: ranking.quality.flags
+    constraint: {
+      requiredForPrimary: ranking.constraint.requiredForPrimary,
+      reason: ranking.constraint.reason,
+      suggestedConstraintTypes: ranking.constraint.suggestedConstraintTypes
     },
-    content: ranking.content,
+    content: {
+      defaultVisible: ranking.content.defaultVisible,
+      reasons: ranking.content.reasons,
+      moderationReason: ranking.content.moderationReason
+    },
     evidenceSummary: ranking.evidenceSummary
   };
 }

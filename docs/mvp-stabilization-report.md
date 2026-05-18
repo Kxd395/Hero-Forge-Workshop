@@ -79,8 +79,9 @@ Payload audit:
 
 | Asset | Raw | Gzip |
 | --- | ---: | ---: |
-| Enriched browser payload | 16.95 MB | 3.02 MB |
+| Enriched browser payload | 13.19 MB | 2.64 MB |
 | Ranking audit payload | 12.20 MB | 769.50 KB |
+| Hidden review payload | 66.55 KB | 5.20 KB |
 
 Ranking distribution:
 

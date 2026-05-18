@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "pipelineVersion": "ranking-pipeline-v1",
   "rulesetVersion": "ranking-rules-v1",
-  "generatedAt": "2026-05-18T02:57:33.351Z",
+  "generatedAt": "2026-05-18T03:08:22.950Z",
   "inputHash": "4aa9eadee20f801aa6fa5c92c2dfd898d5e748d2ce4f7afb855793221ab62d84",
   "sourceFile": "public/data/superpower-list-pool.json",
   "enrichedFile": "public/data/superpower-list-enriched.json",
@@ -51,12 +51,9 @@
     "ranking.scope",
     "ranking.risk",
     "ranking.bestRole",
-    "ranking.roleFit",
     "ranking.confidence",
     "ranking.popularity",
     "ranking.constraint",
-    "ranking.sort",
-    "ranking.quality",
     "ranking.content",
     "ranking.evidenceSummary"
   ]

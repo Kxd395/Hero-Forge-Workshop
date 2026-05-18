@@ -169,7 +169,22 @@ The full audit payload can be separate:
 public/data/superpower-list-ranking-audit.json
 ```
 
-The UI payload can include `evidenceSummary`, but full `evidence` arrays should move to the audit file if payload size becomes a problem.
+The UI payload can include the labels needed for browsing:
+
+```text
+ranking.rating
+ranking.scope
+ranking.risk.level
+ranking.bestRole
+ranking.confidence.label
+ranking.popularity.label
+ranking.constraint.requiredForPrimary
+ranking.content.defaultVisible
+ranking.content.reasons
+ranking.evidenceSummary
+```
+
+Full `evidence`, role-fit scoring, sort scoring, and detailed quality metadata belong in audit or review payloads, not the default browser payload.
 
 ## Fallback Rule
 
