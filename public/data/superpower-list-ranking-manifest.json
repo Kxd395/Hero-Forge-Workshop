@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "pipelineVersion": "ranking-pipeline-v1",
   "rulesetVersion": "ranking-rules-v1",
-  "generatedAt": "2026-05-18T02:04:40.319Z",
+  "generatedAt": "2026-05-18T02:42:44.032Z",
   "inputHash": "4aa9eadee20f801aa6fa5c92c2dfd898d5e748d2ce4f7afb855793221ab62d84",
   "sourceFile": "public/data/superpower-list-pool.json",
   "enrichedFile": "public/data/superpower-list-enriched.json",
@@ -16,6 +16,34 @@
     "unsafe-real-world": 59,
     "privacy-violation": 40,
     "offensive-language": 4
+  },
+  "rankingDistribution": {
+    "rating": {
+      "advanced": 3382,
+      "legendary": 558,
+      "core": 4591
+    },
+    "scope": {
+      "versatile": 6058,
+      "expansive": 2349,
+      "focused": 124
+    },
+    "risk": {
+      "medium": 3026,
+      "extreme": 2720,
+      "high": 2772,
+      "low": 13
+    },
+    "bestRole": {
+      "primary": 4361,
+      "secondary": 846,
+      "utility": 3324
+    },
+    "confidence": {
+      "inferred": 2804,
+      "strong": 5726,
+      "low-data": 1
+    }
   },
   "fields": [
     "ranking.rating",

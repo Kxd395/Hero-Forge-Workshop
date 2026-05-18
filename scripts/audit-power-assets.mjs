@@ -60,7 +60,8 @@ const report = {
     raw: formatBytes(Buffer.byteLength(auditText)),
     gzip: formatBytes(auditGzipBytes)
   },
-  hiddenReasons: manifest.hiddenReasons ?? {}
+  hiddenReasons: manifest.hiddenReasons ?? {},
+  rankingDistribution: manifest.rankingDistribution ?? {}
 };
 
 console.log(JSON.stringify(report, null, 2));

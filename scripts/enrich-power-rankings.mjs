@@ -22,7 +22,15 @@ function hashRecord(record) {
     .digest("hex");
 }
 
-function buildManifest({ generatedAt, inputHash, totalRecords, visibleRecords, hiddenRecords, hiddenReasons }) {
+function buildManifest({
+  generatedAt,
+  inputHash,
+  totalRecords,
+  visibleRecords,
+  hiddenRecords,
+  hiddenReasons,
+  rankingDistribution
+}) {
   return {
     schemaVersion: RANKING_SCHEMA_VERSION,
     pipelineVersion: RANKING_PIPELINE_VERSION,
@@ -36,6 +44,7 @@ function buildManifest({ generatedAt, inputHash, totalRecords, visibleRecords, h
     visibleRecords,
     hiddenRecords,
     hiddenReasons,
+    rankingDistribution,
     fields: [
       "ranking.rating",
       "ranking.scope",
@@ -65,6 +74,17 @@ const importedLibrary = buildImportedLibrary(published, POWER_CATEGORIES);
 const enriched = [];
 const audit = [];
 const hiddenReasons = {};
+const rankingDistribution = {
+  rating: {},
+  scope: {},
+  risk: {},
+  bestRole: {},
+  confidence: {}
+};
+
+function incrementDistribution(group, value) {
+  rankingDistribution[group][value] = (rankingDistribution[group][value] ?? 0) + 1;
+}
 
 for (const power of importedLibrary) {
   const ranking = createRankingProfile(power, {
@@ -83,6 +103,11 @@ for (const power of importedLibrary) {
       hiddenReasons[reason] = (hiddenReasons[reason] ?? 0) + 1;
     }
   }
+  incrementDistribution("rating", ranking.rating);
+  incrementDistribution("scope", ranking.scope);
+  incrementDistribution("risk", ranking.risk.level);
+  incrementDistribution("bestRole", ranking.bestRole);
+  incrementDistribution("confidence", ranking.confidence.label);
   audit.push({
     id: power.id,
     sourceId: power.raw.sourceId,
@@ -103,7 +128,8 @@ const manifest = buildManifest({
   totalRecords: enriched.length,
   visibleRecords: enriched.filter((power) => power.ranking.content.defaultVisible).length,
   hiddenRecords: enriched.filter((power) => !power.ranking.content.defaultVisible).length,
-  hiddenReasons: Object.fromEntries(Object.entries(hiddenReasons).sort((left, right) => right[1] - left[1]))
+  hiddenReasons: Object.fromEntries(Object.entries(hiddenReasons).sort((left, right) => right[1] - left[1])),
+  rankingDistribution
 });
 
 await writeFile(ENRICHED_OUTPUT, `${JSON.stringify(enriched)}\n`);

@@ -258,7 +258,7 @@ describe("ranking model", () => {
       inputHash: "hash"
     });
 
-    expect(ranking.rating).toBe(power.tier);
+    expect(ranking.rating).toBe("legendary");
     expect(ranking.scope).toBe("expansive");
     expect(ranking.risk.level).toBe("extreme");
     expect(ranking.constraint.requiredForPrimary).toBe(true);

@@ -55,7 +55,7 @@ Current known run:
 - Enriched imported records: `8,531`
 - Default-visible records: `8,370`
 - Public enriched payload: about `17 MB` uncompressed
-- Ranking audit payload: about `11 MB` uncompressed
+- Ranking audit payload: about `12 MB` uncompressed
 
 The app loader tries the enriched payload first. If enriched data is missing, malformed, or has no visible powers, it falls back to the original imported pool.
 
@@ -75,6 +75,8 @@ Check:
 - Manifest `schemaVersion` is `1`.
 - Manifest `totalRecords` is plausible.
 - Manifest `visibleRecords` is lower than or equal to `totalRecords`.
+- Manifest `rankingDistribution` shows a plausible spread across rating, risk, role, and confidence labels.
+- Current display-rating distribution is approximately `4,591` core, `3,382` advanced, and `558` legendary.
 - Enriched records use `ranking.rating`, not `ranking.tier`.
 - Public enriched records do not include `ranking.evidence`.
 - Audit records include structured evidence.

@@ -71,6 +71,11 @@ function labelRole(score) {
   return "weak";
 }
 
+function average(values) {
+  if (values.length === 0) return 0;
+  return values.reduce((sum, value) => sum + value, 0) / values.length;
+}
+
 export function getRiskLevel(score) {
   if (score >= 9) return "extreme";
   if (score >= 7) return "high";
@@ -123,11 +128,17 @@ function getScope(power, evidence) {
 function getRisk(power, scope, evidence) {
   const text = powerText(power);
   const tags = new Set();
+  let signalPenalty = 0;
 
   for (const pattern of RISK_PATTERNS) {
     for (const term of pattern.terms) {
       if (text.includes(term)) {
         tags.add(pattern.tag);
+        signalPenalty += pattern.tag === "story-breaking"
+          ? 2
+          : pattern.tag === "condition-dependent"
+            ? 0.5
+            : 1;
         addEvidence(
           evidence.riskSignals,
           "text",
@@ -141,11 +152,12 @@ function getRisk(power, scope, evidence) {
 
   if ((power.weaknesses ?? []).length === 0 && power.source === "imported") {
     tags.add("low-drawback-text");
+    signalPenalty += 1;
     addEvidence(evidence.riskSignals, "weaknesses", "empty", 2, "missing drawbacks reduce confidence in balance");
   }
 
   const scopePenalty = scope === "expansive" ? 2 : scope === "versatile" ? 1 : 0;
-  const score = clamp((power.stats?.risk ?? 5) + scopePenalty, 1, 10);
+  const score = clamp((power.stats?.risk ?? 5) * 0.65 + scopePenalty + signalPenalty, 1, 10);
 
   return {
     score,
@@ -173,19 +185,27 @@ function getRoleFit(power, evidence) {
 
 function getConfidence(power, popularity, evidence) {
   const textLength = powerText(power).length;
-  let score = power.source === "canon" ? 95 : 35;
+  let score = power.source === "canon" ? 95 : 25;
   const reasons = [];
 
   if (power.source === "canon") reasons.push("canon record");
   if (textLength >= 240) {
-    score += 20;
+    score += 15;
     reasons.push("rich description");
     addEvidence(evidence.confidenceSignals, "text", "rich-description", 2, "longer text improves inference confidence");
   }
-  if (popularity.comparisonCount >= 20) {
+  if (popularity.comparisonCount >= 100) {
     score += 20;
+    reasons.push("strong comparison data");
+    addEvidence(evidence.confidenceSignals, "raw.totalComparisons", String(popularity.comparisonCount), 3, "large comparison sample improves confidence");
+  } else if (popularity.comparisonCount >= 20) {
+    score += 10;
     reasons.push("comparison data");
     addEvidence(evidence.confidenceSignals, "raw.totalComparisons", String(popularity.comparisonCount), 2, "comparison data improves confidence");
+  }
+  if ((power.weaknesses ?? []).length > 0) {
+    score += 10;
+    reasons.push("drawback text");
   }
   if ((power.weaknesses ?? []).length === 0 && power.source === "imported") {
     score -= 20;
@@ -194,10 +214,35 @@ function getConfidence(power, popularity, evidence) {
 
   const clamped = round(score);
   return {
-    label: clamped >= 75 ? "strong" : clamped >= 45 ? "inferred" : "low-data",
+    label: clamped >= 65 ? "strong" : clamped >= 45 ? "inferred" : "low-data",
     score: clamped,
     reasons
   };
+}
+
+function getRating(power, popularity, scope, risk, evidence) {
+  const stats = power.stats ?? {};
+  const capability = average([
+    stats.offense ?? 1,
+    stats.defense ?? 1,
+    stats.mobility ?? 1,
+    stats.utility ?? 1,
+    stats.control ?? 1
+  ]);
+  const popularityBoost = popularity.label === "known-pick"
+    ? 1
+    : popularity.label === "niche-pick"
+      ? 0.35
+      : 0;
+  const scopeBoost = scope === "expansive" ? 1.1 : scope === "versatile" ? 0.45 : 0;
+  const riskDrag = risk.level === "extreme" ? 0.7 : risk.level === "high" ? 0.35 : 0;
+  const ratingScore = capability + popularityBoost + scopeBoost - riskDrag;
+
+  addEvidence(evidence.qualitySignals, "rating", ratingScore.toFixed(2), 1, "capability, scope, popularity, and risk determine display rating");
+
+  if (ratingScore >= 8.3 && scope === "expansive" && risk.level !== "low") return "legendary";
+  if (ratingScore >= 6.7 || (scope === "versatile" && ratingScore >= 6.2)) return "advanced";
+  return "core";
 }
 
 function getQuality(power, evidence) {
@@ -300,6 +345,7 @@ export function createRankingProfile(power, { generatedAt = new Date().toISOStri
   const confidence = getConfidence(power, popularity, evidence);
   const quality = getQuality(power, evidence);
   const content = getContent(power, evidence);
+  const rating = getRating(power, popularity, scope, risk, evidence);
   const defaultVisible = quality.defaultVisible && content.defaultVisible;
   const contentReasons = [...new Set([...(quality.reasons ?? []), ...(content.reasons ?? [])])];
   const contentProfile = {
@@ -317,7 +363,7 @@ export function createRankingProfile(power, { generatedAt = new Date().toISOStri
     rulesetVersion: RANKING_RULESET_VERSION,
     generatedAt,
     inputHash,
-    rating: power.tier ?? "core",
+    rating,
     scope,
     risk,
     bestRole,

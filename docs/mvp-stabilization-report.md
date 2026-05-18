@@ -79,8 +79,17 @@ Payload audit:
 
 | Asset | Raw | Gzip |
 | --- | ---: | ---: |
-| Enriched browser payload | 16.99 MB | 2.96 MB |
-| Ranking audit payload | 11.17 MB | 734.77 KB |
+| Enriched browser payload | 16.95 MB | 3.02 MB |
+| Ranking audit payload | 12.20 MB | 769.50 KB |
+
+Ranking distribution:
+
+| Label group | Distribution |
+| --- | --- |
+| Rating | core `4,591` · advanced `3,382` · legendary `558` |
+| Risk | medium `3,026` · high `2,772` · extreme `2,720` · low `13` |
+| Best role | primary `4,361` · secondary `846` · utility `3,324` |
+| Confidence | inferred `2,804` · strong `5,726` · low-data `1` |
 
 ## Verification
 
