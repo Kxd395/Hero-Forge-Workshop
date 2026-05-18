@@ -113,7 +113,7 @@ npm run verify
 Current automated coverage:
 
 - 54 Vitest unit/model tests
-- 19 Playwright browser smoke tests
+- 20 Playwright browser smoke tests
 
 Browser smoke coverage includes:
 
@@ -126,6 +126,7 @@ Browser smoke coverage includes:
 - mobile-width library/forge usability
 - mobile detail popover viewport bounds
 - saved draft save/clear/load
+- saved draft origin/profile reload
 - stale saved draft rehydration from the current catalog
 - review-all selected powers overriding filters
 - quality-gate manifest display

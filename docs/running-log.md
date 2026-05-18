@@ -129,6 +129,7 @@ This is the working log for active Hero Forge Workshop changes. Add short entrie
 - Added visible-on-focus skip links for the power library and Hero draft landmarks.
 - Added Playwright keyboard coverage for skip-link traversal.
 - Added Playwright keyboard coverage for source filters, card Compare, and compare-tray Utility assignment.
+- Added Playwright saved-draft coverage for origin and editable profile field reload.
 
 ## Active Work Queue
 

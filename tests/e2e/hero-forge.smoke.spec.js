@@ -256,6 +256,40 @@ test("saves, clears, and reloads a draft with the selected primary power", async
   await expect(heroDraft.locator(".slot-stack").getByText("Telepathy")).toBeVisible();
 });
 
+test("reloads saved drafts with origin and profile fields", async ({ page }) => {
+  await page.goto("/");
+
+  const heroDraft = page.getByRole("region", { name: "Hero draft" });
+  await heroDraft.getByRole("button", { name: /magic \/ pact/i }).click();
+
+  await page.getByRole("button", { name: "Canon" }).click();
+  await page.getByPlaceholder(/search by name/i).fill("telepathy");
+  const telepathyCard = page.locator(".power-card").filter({
+    has: page.getByRole("heading", { name: "Telepathy", exact: true })
+  }).first();
+  await expect(telepathyCard).toBeVisible();
+  await telepathyCard.getByRole("button", { name: /set primary/i }).click();
+  await expect(heroDraft.locator(".slot-stack").getByText("Magic / Pact")).toBeVisible();
+
+  await heroDraft.getByLabel("Civilian name").fill("Mara Vale");
+  await heroDraft.getByLabel("Home base").fill("Signal Tower");
+  await heroDraft.getByLabel("Motivation").fill("Protect the pact-bound district");
+  await heroDraft.getByLabel("Story constraint").fill("Power fades if the vow is broken");
+
+  await heroDraft.getByRole("button", { name: "Save draft" }).click();
+  await heroDraft.getByRole("button", { name: "Clear all" }).click();
+  await expect(heroDraft.locator(".slot-stack").getByText("Magic / Pact")).toHaveCount(0);
+
+  await heroDraft.locator(".saved-draft-list button").first().click();
+  await expect(page.getByRole("status").filter({ hasText: /loaded/i })).toBeVisible();
+  await expect(heroDraft.locator(".slot-stack").getByText("Magic / Pact")).toBeVisible();
+  await expect(heroDraft.locator(".slot-stack").getByText("Telepathy")).toBeVisible();
+  await expect(heroDraft.getByLabel("Civilian name")).toHaveValue("Mara Vale");
+  await expect(heroDraft.getByLabel("Home base")).toHaveValue("Signal Tower");
+  await expect(heroDraft.getByLabel("Motivation")).toHaveValue("Protect the pact-bound district");
+  await expect(heroDraft.getByLabel("Story constraint")).toHaveValue("Power fades if the vow is broken");
+});
+
 test("rehydrates older saved draft powers from the current library", async ({ page }) => {
   await page.addInitScript(() => {
     const staleDraft = {

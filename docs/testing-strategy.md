@@ -115,6 +115,7 @@ Expected:
 - Save only works when at least one power is selected.
 - Saved draft stores `heroBuild`.
 - Load restores origin, profile fields, selected powers, and slots.
+- Save/load preserves origin and editable profile fields.
 - Stale saved powers rehydrate from the current library record by ID.
 - Missing saved powers are preserved as legacy fallbacks instead of being dropped.
 - Delete removes one draft.
@@ -141,6 +142,7 @@ Current automated coverage:
 - mobile viewport loads, searches, and keeps the forge panel reachable
 - mobile power detail popovers stay inside the viewport and use a readable ranking layout
 - save/load draft smoke path persists one selected power and reloads it from LocalStorage
+- save/load draft smoke path preserves origin and editable profile fields
 - stale saved draft powers rehydrate to current catalog records on load
 - review-all mode shows selected powers even after filters/search would otherwise hide them
 - keyboard focus can open and close a power detail popover
@@ -150,11 +152,9 @@ Current automated coverage:
 
 Additional browser flows still needed:
 
-1. Select an origin.
-2. Assign Primary, Secondary, and Utility.
-3. Reload a saved draft with origin and profile fields.
-4. Expand keyboard traversal around stat sliders, pagination, saved drafts, and Hero draft internals.
-5. Add screenshot snapshots for the mobile and desktop layout smoke states.
+1. Assign Primary, Secondary, and Utility in one full build flow.
+2. Expand keyboard traversal around stat sliders, pagination, saved drafts, and Hero draft internals.
+3. Add screenshot snapshots for the mobile and desktop layout smoke states.
 
 Mobile and sticky-panel geometry smoke is automated at a DOM/layout level. It still needs screenshot snapshots to catch purely visual regressions.
 
