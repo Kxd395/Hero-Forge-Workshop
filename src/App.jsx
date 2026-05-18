@@ -457,6 +457,36 @@ function PowerCard({
                 <p>{power.categoryName} · {power.role} · {power.tier}</p>
               </div>
             </div>
+            {power.ranking && (
+              <div className="power-detail-popover__ranking" aria-label={`${power.name} ranking rationale`}>
+                <span>Ranking rationale</span>
+                <div className="ranking-label-grid">
+                  <strong>
+                    <small>Rating</small>
+                    {ranking.rating}
+                  </strong>
+                  <strong>
+                    <small>Risk</small>
+                    {ranking.riskLabel}
+                  </strong>
+                  <strong>
+                    <small>Fit</small>
+                    {ranking.bestRoleLabel}
+                  </strong>
+                  <strong>
+                    <small>Confidence</small>
+                    {ranking.confidenceLabel}
+                  </strong>
+                </div>
+                {power.ranking.evidenceSummary?.length > 0 && (
+                  <ul>
+                    {power.ranking.evidenceSummary.map((item) => (
+                      <li key={item}>{item}</li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+            )}
             {power.source === "imported" && (
               <div className="power-detail-popover__notice">
                 Imported from the Superpower List Database. Ranking labels are inferred guidance, not reviewed canon.

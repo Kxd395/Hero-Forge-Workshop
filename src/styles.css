@@ -1663,6 +1663,65 @@ button {
   line-height: 1.45;
 }
 
+.power-detail-popover__ranking {
+  display: grid;
+  gap: var(--space-2);
+  padding: var(--space-3);
+  background: rgb(255 255 255 / 4%);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+}
+
+.ranking-label-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--space-2);
+}
+
+.ranking-label-grid strong {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+  padding: var(--space-2);
+  color: var(--ink);
+  background: color-mix(in srgb, var(--surface-2) 88%, black);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-xs);
+  font-size: 12px;
+  font-weight: 900;
+  line-height: 1.2;
+  text-transform: capitalize;
+}
+
+.ranking-label-grid small {
+  color: var(--muted);
+  font-size: 9px;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.power-detail-popover__ranking ul {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 0;
+  list-style: none;
+}
+
+.power-detail-popover__ranking li {
+  display: inline-flex;
+  align-items: center;
+  min-height: 22px;
+  padding: 0 var(--space-2);
+  color: var(--ink-soft);
+  background: rgb(255 255 255 / 5%);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-pill);
+  font-size: 10px;
+  font-weight: 800;
+}
+
 .power-detail-popover__grid,
 .power-detail-popover__lists {
   display: grid;

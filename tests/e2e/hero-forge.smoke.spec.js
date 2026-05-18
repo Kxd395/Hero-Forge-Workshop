@@ -128,6 +128,26 @@ test("shows imported quality gate counts from the ranking manifest", async ({ pa
   await expect(qualityGate.getByText("558")).toBeVisible();
 });
 
+test("explains inferred ranking labels on imported power details", async ({ page }) => {
+  await page.goto("/");
+
+  await page.getByRole("button", { name: "Imported" }).click();
+  await page.getByPlaceholder(/search by name/i).fill("fog shield");
+  const fogShieldCard = page.locator(".power-card").filter({
+    has: page.getByRole("heading", { name: "Fog Shield", exact: true })
+  }).first();
+  await expect(fogShieldCard).toBeVisible();
+
+  await fogShieldCard.getByRole("button", { name: /full details/i }).click();
+
+  const details = fogShieldCard.locator(".power-detail-popover");
+  await expect(details.getByText("Ranking rationale")).toBeVisible();
+  await expect(details.getByText("Rating", { exact: true })).toBeVisible();
+  await expect(details.getByText("Confidence", { exact: true })).toBeVisible();
+  await expect(details.getByText("secondary fit", { exact: true })).toBeVisible();
+  await expect(details.getByText(/ranking labels are inferred guidance/i)).toBeVisible();
+});
+
 test("falls back to the raw imported pool when enriched data is unavailable", async ({ page }) => {
   await page.route("**/data/superpower-list-enriched.json", async (route) => {
     await route.fulfill({ status: 404, body: "not found" });
