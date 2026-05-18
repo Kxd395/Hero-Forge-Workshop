@@ -137,6 +137,8 @@ Current automated coverage:
 - save/load draft smoke path persists one selected power and reloads it from LocalStorage
 - review-all mode shows selected powers even after filters/search would otherwise hide them
 - keyboard focus can open and close a power detail popover
+- keyboard-only search and primary assignment works
+- long imported power names wrap instead of clipping at mobile width
 
 Additional browser flows still needed:
 

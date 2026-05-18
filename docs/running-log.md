@@ -117,10 +117,12 @@ This is the working log for active Hero Forge Workshop changes. Add short entrie
 - Added `tsconfig.typecheck.json` and `npm run typecheck` for core utility and pipeline modules.
 - Added TypeScript/React/Node type packages and wired typechecking into `npm run verify`.
 - Added JSDoc contracts for the logger and library filter APIs so core model/pipeline typechecking passes without suppressions.
+- Added Playwright coverage for keyboard-only source filtering, search, and primary assignment.
+- Added mobile visual regression coverage to ensure long imported power names wrap instead of clipping.
 
 ## Active Work Queue
 
-1. Expand browser smoke tests for full keyboard traversal and visual clipping.
+1. Expand browser smoke tests for full tab-order traversal and sticky/detail-panel clipping.
 2. Add lazy active-category loading once search/index behavior can support cross-category search without downloading every chunk.
 3. Add a real moderation workflow if hidden records need human approve/reject state instead of read-only audit review.
 

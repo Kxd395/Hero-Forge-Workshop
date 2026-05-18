@@ -39,6 +39,30 @@ test("searches, assigns a primary power, and shows slot feedback", async ({ page
   await expect(page.getByText(/Next slot: Secondary/i)).toBeVisible();
 });
 
+test("supports keyboard-only search and primary assignment", async ({ page }) => {
+  await page.goto("/");
+
+  const canonButton = page.getByRole("button", { name: "Canon" });
+  await canonButton.focus();
+  await page.keyboard.press("Enter");
+
+  const searchInput = page.getByPlaceholder(/search by name/i);
+  await searchInput.focus();
+  await page.keyboard.type("fire control");
+
+  const fireCard = page.locator(".power-card").filter({
+    has: page.getByRole("heading", { name: "Fire Control", exact: true })
+  }).first();
+  await expect(fireCard).toBeVisible();
+
+  const assignButton = fireCard.getByRole("button", { name: /set primary/i });
+  await assignButton.focus();
+  await page.keyboard.press("Enter");
+
+  await expect(page.getByRole("status").filter({ hasText: /assigned fire control to primary/i })).toBeVisible();
+  await expect(page.getByRole("region", { name: "Hero draft" }).locator(".slot-stack").getByText("Fire Control")).toBeVisible();
+});
+
 test("compares a power and assigns it directly to utility", async ({ page }) => {
   await page.goto("/");
 
@@ -70,6 +94,33 @@ test("keeps the library and forge panel usable on mobile width", async ({ page }
     () => globalThis.document.documentElement.scrollWidth > globalThis.window.innerWidth
   );
   expect(hasHorizontalOverflow).toBe(false);
+});
+
+test("keeps long imported power names wrapped instead of clipped", async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto("/");
+
+  await page.getByRole("button", { name: "Imported" }).click();
+  await page.getByPlaceholder(/search by name/i).fill("causality ability generation");
+
+  const heading = page.getByRole("heading", { name: "Causality Ability Generation", exact: true }).first();
+  await expect(heading).toBeVisible();
+
+  const style = await heading.evaluate((element) => {
+    const computed = globalThis.getComputedStyle(element);
+    return {
+      overflow: computed.overflow,
+      textOverflow: computed.textOverflow,
+      whiteSpace: computed.whiteSpace,
+      scrollWidth: element.scrollWidth,
+      clientWidth: element.clientWidth
+    };
+  });
+
+  expect(style.whiteSpace).toBe("normal");
+  expect(style.overflow).not.toBe("hidden");
+  expect(style.textOverflow).not.toBe("ellipsis");
+  expect(style.scrollWidth).toBeLessThanOrEqual(style.clientWidth + 1);
 });
 
 test("saves, clears, and reloads a draft with the selected primary power", async ({ page }) => {

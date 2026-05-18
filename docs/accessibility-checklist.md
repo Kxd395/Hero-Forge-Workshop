@@ -62,11 +62,15 @@ Current automated coverage:
 npm run test:e2e
 ```
 
-Automated smoke coverage includes keyboard activation for a power card's Full details and Close controls.
+Automated smoke coverage includes:
+
+- keyboard-only source filtering, search, and primary assignment
+- keyboard activation for a power card's Full details and Close controls
+- mobile-width horizontal overflow checks
+- long imported power names wrapping instead of clipping
 
 Manual checks still required:
 
-- keyboard-only assignment flow
 - full tab-order traversal across filters, cards, compare tray, and Hero draft
 - mobile viewport at 390px width
 - browser zoom at 200%
@@ -75,8 +79,8 @@ Manual checks still required:
 Future automation:
 
 - add axe-based checks
-- add keyboard traversal smoke test
-- add screenshot checks for card header clipping
+- add broader tab-order traversal smoke test
+- add screenshot checks for sticky panel and card details clipping
 
 ## Release Gate
 
