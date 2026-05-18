@@ -11,6 +11,7 @@ It writes:
 ```text
 public/data/superpower-list-enriched.json
 public/data/superpower-list-ranking-audit.json
+public/data/superpower-list-hidden-review.json
 public/data/superpower-list-ranking-manifest.json
 ```
 
@@ -46,7 +47,8 @@ npm run docs:powers
 4. Creates `ranking` metadata through `createRankingProfile()`.
 5. Writes a public enriched UI payload without full raw records.
 6. Writes a separate audit payload containing structured evidence.
-7. Writes a manifest with schema, pipeline, ruleset, input hash, counts, and output paths.
+7. Writes a compact hidden-review payload for records removed from normal browsing.
+8. Writes a manifest with schema, pipeline, ruleset, input hash, counts, and output paths.
 
 ## Current Outputs
 
@@ -56,8 +58,10 @@ Current known run:
 - Default-visible records: `8,370`
 - Public enriched payload: about `17 MB` uncompressed
 - Ranking audit payload: about `12 MB` uncompressed
+- Hidden-review payload: about `67 KB` uncompressed, `5 KB` gzip
 
 The app loader tries the enriched payload first. If enriched data is missing, malformed, or has no visible powers, it falls back to the original imported pool.
+The Data Sources admin view loads the hidden-review payload on demand so maintainers can inspect hidden record names, reasons, labels, and evidence summaries without downloading the full audit evidence file into normal browsing.
 
 ## Verification
 
@@ -76,6 +80,8 @@ Check:
 - Manifest `totalRecords` is plausible.
 - Manifest `visibleRecords` is lower than or equal to `totalRecords`.
 - Manifest `rankingDistribution` shows a plausible spread across rating, risk, role, and confidence labels.
+- Manifest `hiddenReviewFile` points to `public/data/superpower-list-hidden-review.json`.
+- Hidden-review record count matches `hiddenRecords`.
 - Current display-rating distribution is approximately `4,591` core, `3,382` advanced, and `558` legendary.
 - Enriched records use `ranking.rating`, not `ranking.tier`.
 - Public enriched records do not include `ranking.evidence`.
@@ -87,7 +93,7 @@ Check:
 The enrichment pipeline is additive. If enriched data is bad:
 
 ```bash
-git restore public/data/superpower-list-enriched.json public/data/superpower-list-ranking-audit.json public/data/superpower-list-ranking-manifest.json
+git restore public/data/superpower-list-enriched.json public/data/superpower-list-ranking-audit.json public/data/superpower-list-hidden-review.json public/data/superpower-list-ranking-manifest.json
 ```
 
 If these files were already committed:

@@ -117,15 +117,20 @@ test("shows imported quality gate counts from the ranking manifest", async ({ pa
   await page.getByRole("link", { name: /data sources/i }).first().click();
 
   const qualityGate = page.getByRole("region", { name: "Data sources" });
+  const importedQualityGate = page.getByLabel("Imported power quality gate");
   await expect(qualityGate.getByText("Imported Quality Gate")).toBeVisible();
   await expect(qualityGate.getByText(/8,370 visible imported powers/i)).toBeVisible();
   await expect(qualityGate.getByText(/161 records are hidden/i)).toBeVisible();
-  await expect(qualityGate.getByText("too-broad")).toBeVisible();
+  await expect(importedQualityGate.getByText("too-broad")).toBeVisible();
   await expect(qualityGate.getByText("Ranking Distribution")).toBeVisible();
-  await expect(qualityGate.getByText("Core")).toBeVisible();
-  await expect(qualityGate.getByText("4,591")).toBeVisible();
-  await expect(qualityGate.getByText("Legendary")).toBeVisible();
-  await expect(qualityGate.getByText("558")).toBeVisible();
+  await expect(importedQualityGate.getByText("Core4,591", { exact: true })).toBeVisible();
+  await expect(importedQualityGate.getByText("Legendary558", { exact: true })).toBeVisible();
+  await expect(qualityGate.getByText("Hidden records review")).toBeVisible();
+  await expect(qualityGate.getByText("161 hidden")).toBeVisible();
+  await expect(qualityGate.getByRole("button", { name: /privacy-violation 40/i })).toBeVisible();
+  await qualityGate.getByRole("button", { name: /privacy-violation 40/i }).click();
+  await expect(qualityGate.locator(".hidden-review-list article").first()).toBeVisible();
+  await expect(qualityGate.locator(".hidden-review-list").getByText("privacy-violation").first()).toBeVisible();
 });
 
 test("explains inferred ranking labels on imported power details", async ({ page }) => {

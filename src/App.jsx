@@ -227,6 +227,61 @@ function useImportedLibrary() {
   return state;
 }
 
+function useHiddenRankingReview(enabled) {
+  const [state, setState] = useState({
+    status: "idle",
+    records: [],
+    error: null
+  });
+
+  useEffect(() => {
+    if (!enabled) {
+      setState({ status: "idle", records: [], error: null });
+      return undefined;
+    }
+
+    let cancelled = false;
+
+    async function load() {
+      setState((current) => ({
+        status: current.records.length > 0 ? "ready" : "loading",
+        records: current.records,
+        error: null
+      }));
+
+      try {
+        const response = await fetch("/data/superpower-list-hidden-review.json");
+        if (!response.ok) {
+          throw new Error(`Hidden review payload failed with HTTP ${response.status}`);
+        }
+        const records = await response.json();
+        if (!cancelled) {
+          setState({
+            status: "ready",
+            records: Array.isArray(records) ? records : [],
+            error: null
+          });
+        }
+      } catch (error) {
+        appLogger.warn("hidden_review_load_failed", {
+          error: serializeError(error)
+        });
+        if (!cancelled) {
+          setState({ status: "error", records: [], error });
+        }
+      }
+    }
+
+    load();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [enabled]);
+
+  return state;
+}
+
 function loadSavedDrafts() {
   try {
     const raw = window.localStorage.getItem(SAVED_DRAFTS_KEY);
@@ -1675,6 +1730,14 @@ function TaxonomyView({ library, categoryCounts }) {
 
 function SourcesView({ rankingManifest, importedSource }) {
   const roadmap = useMemo(() => getDataSourceRoadmap(DATA_SOURCE_STRATEGIES), []);
+  const hiddenReview = useHiddenRankingReview(Boolean(rankingManifest?.hiddenRecords && importedSource === "enriched"));
+  const [activeHiddenReason, setActiveHiddenReason] = useState("all");
+  const hiddenReasonEntries = Object.entries(rankingManifest?.hiddenReasons ?? {});
+  const visibleHiddenReview = useMemo(() => {
+    if (activeHiddenReason === "all") return hiddenReview.records;
+    return hiddenReview.records.filter((record) => record.reasons?.includes(activeHiddenReason));
+  }, [activeHiddenReason, hiddenReview.records]);
+
   return (
     <section className="panel source-roadmap" aria-label="Data sources">
       <div className="section-heading">
@@ -1732,6 +1795,73 @@ function SourcesView({ rankingManifest, importedSource }) {
             </div>
           )}
         </div>
+      )}
+      {rankingManifest?.hiddenRecords > 0 && importedSource === "enriched" && (
+        <section className="hidden-review-panel" aria-label="Hidden imported records review">
+          <div className="hidden-review-panel__header">
+            <div>
+              <p className="eyebrow">Admin · Quality Review</p>
+              <h3>Hidden records review</h3>
+              <p>
+                Compact audit sample for records removed from normal browsing. Full evidence remains in the ranking audit payload.
+              </p>
+            </div>
+            <strong>{rankingManifest.hiddenRecords.toLocaleString()} hidden</strong>
+          </div>
+          <div className="hidden-review-panel__filters" aria-label="Filter hidden records by reason">
+            <button
+              type="button"
+              className={activeHiddenReason === "all" ? "is-active" : undefined}
+              onClick={() => setActiveHiddenReason("all")}
+            >
+              All hidden
+            </button>
+            {hiddenReasonEntries.map(([reason, count]) => (
+              <button
+                key={reason}
+                type="button"
+                className={activeHiddenReason === reason ? "is-active" : undefined}
+                onClick={() => setActiveHiddenReason(reason)}
+              >
+                {reason} <span>{Number(count).toLocaleString()}</span>
+              </button>
+            ))}
+          </div>
+          {hiddenReview.status === "loading" && (
+            <p className="hidden-review-panel__state">Loading compact hidden-record audit...</p>
+          )}
+          {hiddenReview.status === "error" && (
+            <p className="hidden-review-panel__state hidden-review-panel__state--error">
+              Hidden-record audit could not be loaded.
+            </p>
+          )}
+          {hiddenReview.status === "ready" && (
+            <div className="hidden-review-list">
+              {visibleHiddenReview.slice(0, 12).map((record) => (
+                <article key={record.id}>
+                  <header>
+                    <div>
+                      <p>{record.categoryName} · {record.role}</p>
+                      <h4>{record.name}</h4>
+                    </div>
+                    <strong>{formatDistributionLabel(record.risk)} risk</strong>
+                  </header>
+                  <div className="hidden-review-list__chips">
+                    {(record.reasons ?? []).map((reason) => (
+                      <span key={reason}>{reason}</span>
+                    ))}
+                    <span>{formatDistributionLabel(record.rating)}</span>
+                    <span>{formatDistributionLabel(record.bestRole)} fit</span>
+                    <span>{formatDistributionLabel(record.confidence)} confidence</span>
+                  </div>
+                  <p>
+                    Evidence: {(record.evidenceSummary ?? []).join(" · ") || "No evidence summary generated."}
+                  </p>
+                </article>
+              ))}
+            </div>
+          )}
+        </section>
       )}
       <div className="source-grid">
         {roadmap.map((source) => (

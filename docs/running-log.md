@@ -103,12 +103,16 @@ This is the working log for active Hero Forge Workshop changes. Add short entrie
 - Added Playwright smoke coverage for imported ranking rationale visibility.
 - Verified the ranking-rationale checkpoint with `npm run verify`: asset audit, 52 unit tests, 10 browser smoke tests, lint, and production build all passed.
 - Pushed commit `0da1fee` and created preview deployment `https://hero-forge-workshop-bvlwgpqa8-kxd395s-projects.vercel.app`.
+- Added compact `public/data/superpower-list-hidden-review.json` so hidden imported records can be reviewed without loading the full ranking audit payload in the browser.
+- Added Data Sources admin UI for hidden-record review, including reason filters and evidence summaries.
+- Updated the power asset audit to validate hidden-review count and gzip budget.
+- Verified the hidden-review checkpoint with `npm run verify`: asset audit, 52 unit tests, 10 browser smoke tests, lint, and production build all passed.
 
 ## Active Work Queue
 
-1. Add admin review mode for hidden/moderated imported records.
-2. Expand browser smoke tests for full keyboard traversal and visual clipping.
-3. Continue slimming or chunking enriched runtime payload if `npm run audit:powers` or browser measurements exceed budget.
+1. Expand browser smoke tests for full keyboard traversal and visual clipping.
+2. Continue slimming or chunking enriched runtime payload if `npm run audit:powers` or browser measurements exceed budget.
+3. Add a real moderation workflow if hidden records need human approve/reject state instead of read-only audit review.
 
 ## Open Risks
 

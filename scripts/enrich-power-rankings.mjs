@@ -14,6 +14,7 @@ import {
 const POOL_INPUT = new URL("../public/data/superpower-list-pool.json", import.meta.url);
 const ENRICHED_OUTPUT = new URL("../public/data/superpower-list-enriched.json", import.meta.url);
 const AUDIT_OUTPUT = new URL("../public/data/superpower-list-ranking-audit.json", import.meta.url);
+const HIDDEN_REVIEW_OUTPUT = new URL("../public/data/superpower-list-hidden-review.json", import.meta.url);
 const MANIFEST_OUTPUT = new URL("../public/data/superpower-list-ranking-manifest.json", import.meta.url);
 
 function hashRecord(record) {
@@ -40,6 +41,7 @@ function buildManifest({
     sourceFile: "public/data/superpower-list-pool.json",
     enrichedFile: "public/data/superpower-list-enriched.json",
     auditFile: "public/data/superpower-list-ranking-audit.json",
+    hiddenReviewFile: "public/data/superpower-list-hidden-review.json",
     totalRecords,
     visibleRecords,
     hiddenRecords,
@@ -73,6 +75,7 @@ const importedLibrary = buildImportedLibrary(published, POWER_CATEGORIES);
 
 const enriched = [];
 const audit = [];
+const hiddenReview = [];
 const hiddenReasons = {};
 const rankingDistribution = {
   rating: {},
@@ -102,6 +105,23 @@ for (const power of importedLibrary) {
     for (const reason of ranking.content.reasons ?? ["hidden"]) {
       hiddenReasons[reason] = (hiddenReasons[reason] ?? 0) + 1;
     }
+    hiddenReview.push({
+      id: power.id,
+      sourceId: raw.sourceId,
+      name: power.name,
+      category: power.category,
+      categoryName: power.categoryName,
+      role: power.role,
+      rating: ranking.rating,
+      scope: ranking.scope,
+      risk: ranking.risk.level,
+      bestRole: ranking.bestRole,
+      confidence: ranking.confidence.label,
+      reasons: ranking.content.reasons,
+      contentFlags: ranking.content.flags,
+      qualityFlags: ranking.quality.flags,
+      evidenceSummary: ranking.evidenceSummary
+    });
   }
   incrementDistribution("rating", ranking.rating);
   incrementDistribution("scope", ranking.scope);
@@ -134,6 +154,7 @@ const manifest = buildManifest({
 
 await writeFile(ENRICHED_OUTPUT, `${JSON.stringify(enriched)}\n`);
 await writeFile(AUDIT_OUTPUT, `${JSON.stringify(audit)}\n`);
+await writeFile(HIDDEN_REVIEW_OUTPUT, `${JSON.stringify(hiddenReview)}\n`);
 await writeFile(MANIFEST_OUTPUT, `${JSON.stringify(manifest, null, 2)}\n`);
 
 console.log(`Enriched ${enriched.length} imported powers into ${ENRICHED_OUTPUT.pathname}`);
