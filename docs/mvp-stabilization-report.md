@@ -36,6 +36,8 @@ PLAYWRIGHT_BASE_URL=https://hero-forge-workshop-ce3a1t199-kxd395s-projects.verce
 
 Preview smoke status: blocked by Vercel Deployment Protection. The preview URL served the Vercel login page to unauthenticated Playwright, so hosted browser smoke tests require a public target or a configured Vercel protection bypass.
 
+The Playwright config supports Vercel's automation bypass header when `VERCEL_AUTOMATION_BYPASS_SECRET` is provided in the environment.
+
 Production deployment was not promoted. Use an explicit production deploy command only after preview smoke testing.
 
 ## Current Product State

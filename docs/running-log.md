@@ -96,6 +96,7 @@ This is the working log for active Hero Forge Workshop changes. Add short entrie
 - Added `docs/mvp-stabilization-report.md` with checkpoint, preview URL, verification state, data state, risks, next steps, and rollback.
 - Added `PLAYWRIGHT_BASE_URL` support for running Playwright smoke tests against deployed preview URLs.
 - Attempted remote Playwright smoke against the Vercel preview; blocked by Vercel Deployment Protection login page.
+- Added `VERCEL_AUTOMATION_BYPASS_SECRET` support for Playwright through Vercel's `x-vercel-protection-bypass` header.
 
 ## Active Work Queue
 

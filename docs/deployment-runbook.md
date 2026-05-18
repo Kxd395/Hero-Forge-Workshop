@@ -68,6 +68,16 @@ PLAYWRIGHT_BASE_URL=https://your-preview-url.vercel.app npm run test:e2e
 
 If Vercel Deployment Protection is enabled, unauthenticated Playwright runs will see the Vercel login page instead of the app. In that case, either run the suite against a public production deployment after approval, disable protection for the preview, or configure a proper Vercel protection bypass token before using remote browser smoke tests.
 
+Vercel's official automation bypass uses the `x-vercel-protection-bypass` header. The Playwright config reads it from `VERCEL_AUTOMATION_BYPASS_SECRET`:
+
+```bash
+PLAYWRIGHT_BASE_URL=https://your-preview-url.vercel.app \
+VERCEL_AUTOMATION_BYPASS_SECRET=<secret-from-vercel> \
+npm run test:e2e
+```
+
+Do not commit the bypass secret.
+
 ## Deploy Path
 
 1. Verify local preflight.
