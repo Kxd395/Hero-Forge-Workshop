@@ -123,6 +123,7 @@ This is the working log for active Hero Forge Workshop changes. Add short entrie
 - Preserved missing saved powers as legacy fallbacks and surfaced a load notice instead of dropping user data.
 - Added unit and browser regression coverage for stale saved draft power rehydration.
 - Added `src/App.jsx` to the enforced TypeScript `checkJs` gate and fixed the surfaced UI shape issues.
+- Added Playwright browser smoke tests to the enforced TypeScript `checkJs` gate.
 
 ## Active Work Queue
 
@@ -133,8 +134,8 @@ This is the working log for active Hero Forge Workshop changes. Add short entrie
 ## Open Risks
 
 - Project is not fully type-safe yet.
-- Browser tests are not yet inside the TypeScript check gate.
 - `App.jsx` is checked, but still needs explicit component prop contracts or a staged TSX split.
+- Browser tests are checked, but still need shared typed fixture helpers if the suite grows.
 - Imported dataset is community-generated; first-pass quality flags exist, but human moderation workflow is not implemented.
 - Enriched runtime payload is still large and needs measured browser performance.
 - Saved drafts now have a schema version and rehydrate selected powers from the current catalog; future breaking schema migrations still need explicit version handlers.

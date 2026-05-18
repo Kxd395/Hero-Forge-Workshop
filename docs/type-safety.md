@@ -2,7 +2,7 @@
 
 Current answer: the project is partially type-checked, but not fully type-safe.
 
-The app is a JavaScript React/Vite project. TypeScript now runs in `allowJs`/`checkJs` mode for the main React app, core utility modules, and pipeline modules through `tsconfig.typecheck.json`. Browser tests are not yet inside the typecheck gate.
+The app is a JavaScript React/Vite project. TypeScript now runs in `allowJs`/`checkJs` mode for the main React app, browser smoke tests, core utility modules, and pipeline modules through `tsconfig.typecheck.json`.
 
 ## Current Safety Net
 
@@ -11,7 +11,7 @@ The app is a JavaScript React/Vite project. TypeScript now runs in `allowJs`/`ch
 | Runtime model validation | Partial |
 | Unit tests | Good baseline for utility/model behavior |
 | ESLint | Enabled for JS/JSX |
-| TypeScript static checking | Enforced for `src/App.jsx`, core utilities, and scripts |
+| TypeScript static checking | Enforced for `src/App.jsx`, Playwright smoke tests, core utilities, and scripts |
 | PropTypes | Disabled |
 | Schema validation for imported JSON | Partial/manual |
 | Saved draft schema migration | Partial |
@@ -23,7 +23,7 @@ The app is a JavaScript React/Vite project. TypeScript now runs in `allowJs`/`ch
 - Tests cover assignment, draft generation, filtering, imported manifest loading, and many model edge cases.
 - The app has deterministic normalization helpers for canon and imported powers.
 - `src/utils/runtimeGuards.js` now filters fetched imported records and normalizes saved drafts before the UI uses them.
-- `npm run typecheck` validates `src/App.jsx`, scripts, and core utility modules with TypeScript `checkJs`.
+- `npm run typecheck` validates `src/App.jsx`, browser smoke tests, scripts, and core utility modules with TypeScript `checkJs`.
 - `npm run verify` now includes `npm run typecheck`.
 
 ## Current Type Risks
@@ -55,7 +55,7 @@ Do not convert everything to TypeScript in one large rewrite. Use a staged migra
 | Baseline docs | This file exists and names current risk honestly |
 | Runtime guards | Imported JSON and saved drafts are validated before use |
 | JSDoc core types | Main model shapes are documented in code |
-| Typecheck script | Done: `npm run typecheck` exists and passes for `src/App.jsx`, core utilities, and scripts |
+| Typecheck script | Done: `npm run typecheck` exists and passes for `src/App.jsx`, browser smoke tests, core utilities, and scripts |
 | Utility TS migration | `src/utils` model files are TypeScript |
 | UI TS migration | `App.jsx` is split and converted to typed components |
 

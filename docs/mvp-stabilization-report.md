@@ -138,7 +138,7 @@ Not yet fully production-polished because:
 - no human admin review mode for hidden/imported records
 - no screenshot-based visual regression checks
 - accessibility has smoke coverage but not full traversal/assistive-tech validation
-- type safety now covers the main React app, core utilities, and pipeline scripts, but component props are still not explicitly typed
+- type safety now covers the main React app, browser smoke tests, core utilities, and pipeline scripts, but component props are still not explicitly typed
 - large static JSON remains acceptable by gzip budget but should be watched
 
 ## Recommended Next Steps

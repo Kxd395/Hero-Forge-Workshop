@@ -14,6 +14,7 @@
   "include": [
     "scripts/*.mjs",
     "src/App.jsx",
+    "tests/e2e/*.js",
     "src/utils/dataSourceModel.js",
     "src/utils/heroBuilder.js",
     "src/utils/importedPowerPool.js",
