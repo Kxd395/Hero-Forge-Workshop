@@ -14,7 +14,7 @@ The app is a JavaScript React/Vite project. TypeScript now runs in `allowJs`/`ch
 | TypeScript static checking | Enforced for core utilities and scripts |
 | PropTypes | Disabled |
 | Schema validation for imported JSON | Partial/manual |
-| Saved draft schema migration | Started |
+| Saved draft schema migration | Partial |
 
 ## What Is Safe Today
 
@@ -30,7 +30,8 @@ The app is a JavaScript React/Vite project. TypeScript now runs in `allowJs`/`ch
 
 - `App.jsx` can pass malformed data to child components without compile-time failure.
 - Imported and enriched JSON now pass through runtime guards, but deeper schema validation is still needed before the data model is considered type-safe.
-- Saved drafts now get a schema version when saved, but full migration/rehydration is not implemented yet.
+- Saved drafts now get a schema version when saved and selected powers rehydrate from the current unified library by ID on load.
+- Missing saved powers are preserved as legacy local copies so older drafts do not lose user data, but future breaking schema migrations still need explicit version handlers.
 - `ranking` has a documented schema and runtime tests, but not generated TypeScript types.
 - `heroBuild.limitation` remains for backward compatibility, so new code could accidentally revive it as an active slot.
 - There are no generated types for `public/data/*.json`.

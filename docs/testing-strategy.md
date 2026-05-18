@@ -38,6 +38,7 @@ Run:
 
 ```bash
 npm run docs:powers
+npm run typecheck
 npm run test
 npm run test:e2e
 npm run lint
@@ -114,6 +115,8 @@ Expected:
 - Save only works when at least one power is selected.
 - Saved draft stores `heroBuild`.
 - Load restores origin, profile fields, selected powers, and slots.
+- Stale saved powers rehydrate from the current library record by ID.
+- Missing saved powers are preserved as legacy fallbacks instead of being dropped.
 - Delete removes one draft.
 - LocalStorage failures should not crash the app in future hardened behavior.
 
@@ -135,6 +138,7 @@ Current automated coverage:
 - compare tray can assign directly to Utility
 - mobile viewport loads, searches, and keeps the forge panel reachable
 - save/load draft smoke path persists one selected power and reloads it from LocalStorage
+- stale saved draft powers rehydrate to current catalog records on load
 - review-all mode shows selected powers even after filters/search would otherwise hide them
 - keyboard focus can open and close a power detail popover
 - keyboard-only search and primary assignment works

@@ -325,6 +325,46 @@ export function clearHeroSlot(build, slotId) {
   return next;
 }
 
+function normalizeOriginSelection(origin) {
+  if (!origin) return null;
+  const originKey = String(origin.selectionId || origin.id || "").replace(/^origin:/, "");
+  const knownOrigin = ORIGIN_SOURCES.find((entry) => entry.id === originKey);
+  if (knownOrigin) return createOriginSource(knownOrigin.id);
+  return origin?.source === "origin" ? origin : null;
+}
+
+function rehydratePowerSelection(power, libraryById, missingPowerIds) {
+  if (!power) return null;
+  const powerId = getPowerId(power);
+  const currentPower = libraryById.get(powerId);
+  if (currentPower) return toSelection(currentPower);
+  if (powerId) missingPowerIds.push(powerId);
+  return power?.name ? power : null;
+}
+
+export function rehydrateHeroBuild(savedBuild = createEmptyHeroBuild(), library = []) {
+  const base = cloneBuild(savedBuild);
+  const libraryById = new Map(library.map((power) => [power.id, power]));
+  const missingPowerIds = [];
+
+  const heroBuild = {
+    ...base,
+    origin: normalizeOriginSelection(base.origin),
+    primary: rehydratePowerSelection(base.primary, libraryById, missingPowerIds),
+    secondary: (base.secondary ?? [])
+      .map((power) => rehydratePowerSelection(power, libraryById, missingPowerIds))
+      .filter(Boolean)
+      .slice(0, SLOT_BY_ID.secondary.limit ?? 3),
+    utility: rehydratePowerSelection(base.utility, libraryById, missingPowerIds),
+    limitation: null
+  };
+
+  return {
+    heroBuild,
+    missingPowerIds: [...new Set(missingPowerIds)]
+  };
+}
+
 function unique(items, limit) {
   return [...new Set(items.filter(Boolean))].slice(0, limit);
 }

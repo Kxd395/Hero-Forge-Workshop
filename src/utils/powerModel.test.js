@@ -28,6 +28,7 @@ import {
   formatHeroSheet,
   getHeroBuildChecklist,
   getHeroBuildPowers,
+  rehydrateHeroBuild,
   removePowerFromBuild,
   toCanonSelection,
   toImportedSelection,
@@ -208,6 +209,56 @@ describe("runtime guards", () => {
       { name: "No Build" },
       { id: "valid", name: "Valid", heroBuild: createEmptyHeroBuild() }
     ])).toHaveLength(1);
+  });
+
+  it("rehydrates saved draft powers from the current library", () => {
+    const currentTelepathy = normalizeCanonPower(BASE_SUPERPOWERS.find((power) => power.id === "telepathy"));
+    const staleTelepathy = {
+      id: currentTelepathy.id,
+      selectionId: currentTelepathy.id,
+      source: "canon",
+      name: "Old Telepathy",
+      category: "Old Category",
+      summary: "stale saved copy",
+      strengths: [],
+      weaknesses: [],
+      tags: [],
+      stats: { offense: 1, defense: 1, mobility: 1, utility: 1, control: 1, risk: 1 }
+    };
+
+    const { heroBuild, missingPowerIds } = rehydrateHeroBuild({
+      ...createEmptyHeroBuild(),
+      origin: createOriginSource("mutation-gene"),
+      primary: staleTelepathy
+    }, [currentTelepathy]);
+
+    expect(heroBuild.origin.name).toBe("Mutation / Gene");
+    expect(heroBuild.primary.name).toBe("Telepathy");
+    expect(heroBuild.primary.stats.control).toBe(currentTelepathy.stats.control);
+    expect(missingPowerIds).toEqual([]);
+  });
+
+  it("preserves legacy saved powers that no longer exist in the current library", () => {
+    const legacyPower = {
+      id: "imported:missing",
+      selectionId: "imported:missing",
+      source: "imported",
+      name: "Archived Power",
+      category: "Imported",
+      summary: "legacy local-only power",
+      strengths: [],
+      weaknesses: [],
+      tags: [],
+      stats: { offense: 5, defense: 5, mobility: 5, utility: 5, control: 5, risk: 5 }
+    };
+
+    const { heroBuild, missingPowerIds } = rehydrateHeroBuild({
+      ...createEmptyHeroBuild(),
+      secondary: [legacyPower]
+    }, []);
+
+    expect(heroBuild.secondary[0].name).toBe("Archived Power");
+    expect(missingPowerIds).toEqual(["imported:missing"]);
   });
 });
 

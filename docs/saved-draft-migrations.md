@@ -44,6 +44,9 @@ Normalized draft shape:
 - Missing draft IDs are regenerated.
 - Missing schema versions are treated as the current version until a breaking migration exists.
 - Drafts are capped to the most recent safe display limit.
+- Saved powers are rehydrated from the current unified library by `id` / `selectionId` when a draft is loaded.
+- If a saved power no longer exists in the current library, the app preserves the local legacy copy and announces a fallback instead of losing user data.
+- `limitation` is retained only for backward compatibility and is cleared during rehydration.
 
 ## Future Versioning
 
@@ -85,6 +88,8 @@ Required unit cases:
 - draft with future unknown version
 - draft with duplicate or missing ID
 - draft with old slot shape after a future schema change
+- stale saved power refreshed from the current library
+- missing saved power preserved as a legacy fallback
 
 Required browser cases:
 
@@ -92,4 +97,5 @@ Required browser cases:
 - reload the page
 - load the draft
 - verify origin, profile, and selected slots are restored
+- seed a stale saved draft and verify the selected power rehydrates to the current catalog record
 - delete the draft

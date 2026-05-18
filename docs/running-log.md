@@ -119,6 +119,9 @@ This is the working log for active Hero Forge Workshop changes. Add short entrie
 - Added JSDoc contracts for the logger and library filter APIs so core model/pipeline typechecking passes without suppressions.
 - Added Playwright coverage for keyboard-only source filtering, search, and primary assignment.
 - Added mobile visual regression coverage to ensure long imported power names wrap instead of clipping.
+- Added saved draft rehydration so selected powers refresh from the current unified library by ID when older drafts load.
+- Preserved missing saved powers as legacy fallbacks and surfaced a load notice instead of dropping user data.
+- Added unit and browser regression coverage for stale saved draft power rehydration.
 
 ## Active Work Queue
 
@@ -132,6 +135,6 @@ This is the working log for active Hero Forge Workshop changes. Add short entrie
 - `App.jsx` and browser tests are not yet inside the TypeScript check gate.
 - Imported dataset is community-generated; first-pass quality flags exist, but human moderation workflow is not implemented.
 - Enriched runtime payload is still large and needs measured browser performance.
-- Saved drafts now have a schema version on new saves, but migrations/rehydration are not complete.
+- Saved drafts now have a schema version and rehydrate selected powers from the current catalog; future breaking schema migrations still need explicit version handlers.
 - Accessibility expectations are documented but not tested.
 - Performance budgets are partially enforced through `npm run audit:powers`.

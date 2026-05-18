@@ -146,6 +146,52 @@ test("saves, clears, and reloads a draft with the selected primary power", async
   await expect(heroDraft.locator(".slot-stack").getByText("Telepathy")).toBeVisible();
 });
 
+test("rehydrates older saved draft powers from the current library", async ({ page }) => {
+  await page.addInitScript(() => {
+    const staleDraft = {
+      id: "legacy-telepathy",
+      name: "Legacy Mind Draft",
+      classification: "Legacy Strategist",
+      selectedCount: 1,
+      savedAt: "2026-05-18T00:00:00.000Z",
+      heroBuild: {
+        alias: "Legacy Mind",
+        civilianName: "",
+        homeBase: "",
+        motivation: "",
+        storyConstraint: "",
+        origin: null,
+        primary: {
+          id: "canon:telepathy",
+          selectionId: "canon:telepathy",
+          source: "canon",
+          name: "Old Telepathy",
+          category: "Old Category",
+          summary: "stale saved local copy",
+          strengths: [],
+          weaknesses: [],
+          tags: [],
+          stats: { offense: 1, defense: 1, mobility: 1, utility: 1, control: 1, risk: 1 }
+        },
+        secondary: [],
+        utility: null,
+        limitation: null
+      }
+    };
+    globalThis.localStorage.setItem("powers-forge:saved-drafts", JSON.stringify([staleDraft]));
+  });
+
+  await page.goto("/");
+
+  const heroDraft = page.getByRole("region", { name: "Hero draft" });
+  await expect(heroDraft.locator(".saved-draft-list").getByText("Legacy Mind Draft")).toBeVisible();
+  await heroDraft.locator(".saved-draft-list button").first().click();
+
+  await expect(page.getByRole("status").filter({ hasText: /loaded legacy mind draft/i })).toBeVisible();
+  await expect(heroDraft.locator(".slot-stack").getByText("Telepathy")).toBeVisible();
+  await expect(heroDraft.locator(".slot-stack").getByText("Old Telepathy")).toHaveCount(0);
+});
+
 test("review all selected powers overrides active library filters", async ({ page }) => {
   await page.goto("/");
 

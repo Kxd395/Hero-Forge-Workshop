@@ -104,6 +104,7 @@ npm run verify
 `verify` includes:
 
 - `npm run audit:powers`
+- `npm run typecheck`
 - `npm run test`
 - `npm run test:e2e`
 - `npm run lint`
@@ -111,8 +112,8 @@ npm run verify
 
 Current automated coverage:
 
-- 52 Vitest unit/model tests
-- 9 Playwright browser smoke tests
+- 54 Vitest unit/model tests
+- 15 Playwright browser smoke tests
 
 Browser smoke coverage includes:
 
@@ -122,6 +123,7 @@ Browser smoke coverage includes:
 - compare-tray direct assignment
 - mobile-width library/forge usability
 - saved draft save/clear/load
+- stale saved draft rehydration from the current catalog
 - review-all selected powers overriding filters
 - quality-gate manifest display
 - raw imported-pool fallback

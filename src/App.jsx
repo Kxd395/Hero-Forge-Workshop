@@ -41,6 +41,7 @@ import {
   findPowerSlot,
   formatHeroSheet,
   getHeroBuildPowers,
+  rehydrateHeroBuild,
   removePowerFromBuild
 } from "./utils/heroBuilder.js";
 import {
@@ -2265,9 +2266,17 @@ export default function App() {
   }
 
   function loadDraft(savedDraft) {
-    setHeroBuild(savedDraft.heroBuild ?? createEmptyHeroBuild());
+    const { heroBuild: rehydratedBuild, missingPowerIds } = rehydrateHeroBuild(
+      savedDraft.heroBuild ?? createEmptyHeroBuild(),
+      library
+    );
+    setHeroBuild(rehydratedBuild);
     setActiveSlot("primary");
-    setAssignmentNotice(`Loaded ${savedDraft.name || "saved draft"}.`);
+    setAssignmentNotice(
+      missingPowerIds.length > 0
+        ? `Loaded ${savedDraft.name || "saved draft"} with ${missingPowerIds.length} legacy power fallback.`
+        : `Loaded ${savedDraft.name || "saved draft"}.`
+    );
     setView("forge");
   }
 

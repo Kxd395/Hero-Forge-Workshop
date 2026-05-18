@@ -115,4 +115,4 @@ The app can continue loading `public/data/superpower-list-pool.json`.
 - Replace visible score chips with ranking labels.
 - Add content/quality filter behavior.
 - Consider loading only active category chunks once search/index behavior supports lazy cross-category search.
-- Add saved draft rehydration against the current library.
+- Keep saved draft rehydration covered as the unified library and ranking schema evolves.
