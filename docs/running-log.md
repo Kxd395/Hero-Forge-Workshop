@@ -109,11 +109,14 @@ This is the working log for active Hero Forge Workshop changes. Add short entrie
 - Verified the hidden-review checkpoint with `npm run verify`: asset audit, 52 unit tests, 10 browser smoke tests, lint, and production build all passed.
 - Compacted the public ranking payload by removing heavy audit/sort fields from `ranking` while keeping labels, visibility, constraints, and evidence summaries in the browser payload.
 - Reduced `public/data/superpower-list-enriched.json` from `16.95 MB` raw / `3.02 MB` gzip to `13.19 MB` raw / `2.64 MB` gzip.
+- Added category-level enriched chunks under `public/data/imported-powers/` and manifest `enrichedChunks` metadata.
+- Updated the imported library loader to prefer category chunks, fall back to the monolithic enriched payload, and finally fall back to the raw imported pool.
+- Added Playwright fallback coverage for chunk failure and enriched-payload failure.
 
 ## Active Work Queue
 
 1. Expand browser smoke tests for full keyboard traversal and visual clipping.
-2. Continue slimming or chunking enriched runtime payload if `npm run audit:powers` or browser measurements exceed budget.
+2. Add lazy active-category loading once search/index behavior can support cross-category search without downloading every chunk.
 3. Add a real moderation workflow if hidden records need human approve/reject state instead of read-only audit review.
 
 ## Open Risks

@@ -153,7 +153,24 @@ test("explains inferred ranking labels on imported power details", async ({ page
   await expect(details.getByText(/ranking labels are inferred guidance/i)).toBeVisible();
 });
 
+test("falls back to monolithic enriched data when category chunks are unavailable", async ({ page }) => {
+  await page.route("**/data/imported-powers/*.json", async (route) => {
+    await route.fulfill({ status: 404, body: "not found" });
+  });
+
+  await page.goto("/");
+
+  await expect(page.getByText(/imported\s+8,370/i)).toBeVisible();
+  await expect(page.getByText(/161 imported records hidden by quality gate/i)).toBeVisible();
+
+  await page.getByRole("link", { name: /data sources/i }).first().click();
+  await expect(page.getByText(/active imported source: quality-gated enriched data/i)).toBeVisible();
+});
+
 test("falls back to the raw imported pool when enriched data is unavailable", async ({ page }) => {
+  await page.route("**/data/imported-powers/*.json", async (route) => {
+    await route.fulfill({ status: 404, body: "not found" });
+  });
   await page.route("**/data/superpower-list-enriched.json", async (route) => {
     await route.fulfill({ status: 404, body: "not found" });
   });

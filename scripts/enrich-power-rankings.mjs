@@ -1,5 +1,5 @@
 import { createHash } from "node:crypto";
-import { readFile, writeFile } from "node:fs/promises";
+import { mkdir, readFile, rm, writeFile } from "node:fs/promises";
 
 import { POWER_CATEGORIES } from "../src/data/superpowers.js";
 import { buildImportedLibrary } from "../src/utils/powerLibrary.js";
@@ -13,6 +13,7 @@ import {
 
 const POOL_INPUT = new URL("../public/data/superpower-list-pool.json", import.meta.url);
 const ENRICHED_OUTPUT = new URL("../public/data/superpower-list-enriched.json", import.meta.url);
+const ENRICHED_CHUNK_DIR = new URL("../public/data/imported-powers/", import.meta.url);
 const AUDIT_OUTPUT = new URL("../public/data/superpower-list-ranking-audit.json", import.meta.url);
 const HIDDEN_REVIEW_OUTPUT = new URL("../public/data/superpower-list-hidden-review.json", import.meta.url);
 const MANIFEST_OUTPUT = new URL("../public/data/superpower-list-ranking-manifest.json", import.meta.url);
@@ -30,7 +31,8 @@ function buildManifest({
   visibleRecords,
   hiddenRecords,
   hiddenReasons,
-  rankingDistribution
+  rankingDistribution,
+  enrichedChunks
 }) {
   return {
     schemaVersion: RANKING_SCHEMA_VERSION,
@@ -40,6 +42,7 @@ function buildManifest({
     inputHash,
     sourceFile: "public/data/superpower-list-pool.json",
     enrichedFile: "public/data/superpower-list-enriched.json",
+    enrichedChunks,
     auditFile: "public/data/superpower-list-ranking-audit.json",
     hiddenReviewFile: "public/data/superpower-list-hidden-review.json",
     totalRecords,
@@ -146,9 +149,26 @@ const manifest = buildManifest({
   visibleRecords: enriched.filter((power) => power.ranking.content.defaultVisible).length,
   hiddenRecords: enriched.filter((power) => !power.ranking.content.defaultVisible).length,
   hiddenReasons: Object.fromEntries(Object.entries(hiddenReasons).sort((left, right) => right[1] - left[1])),
-  rankingDistribution
+  rankingDistribution,
+  enrichedChunks: POWER_CATEGORIES.map((category) => {
+    const records = enriched.filter((power) => power.category === category.id);
+    return {
+      category: category.id,
+      file: `public/data/imported-powers/${category.id}.json`,
+      records: records.length,
+      visibleRecords: records.filter((power) => power.ranking.content.defaultVisible).length
+    };
+  }).filter((chunk) => chunk.records > 0)
 });
 
+await rm(ENRICHED_CHUNK_DIR, { recursive: true, force: true });
+await mkdir(ENRICHED_CHUNK_DIR, { recursive: true });
+await Promise.all(
+  manifest.enrichedChunks.map((chunk) => {
+    const records = enriched.filter((power) => power.category === chunk.category);
+    return writeFile(new URL(`${chunk.category}.json`, ENRICHED_CHUNK_DIR), `${JSON.stringify(records)}\n`);
+  })
+);
 await writeFile(ENRICHED_OUTPUT, `${JSON.stringify(enriched)}\n`);
 await writeFile(AUDIT_OUTPUT, `${JSON.stringify(audit)}\n`);
 await writeFile(HIDDEN_REVIEW_OUTPUT, `${JSON.stringify(hiddenReview)}\n`);

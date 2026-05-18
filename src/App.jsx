@@ -156,6 +156,28 @@ function formatDistributionLabel(value) {
     .join(" ");
 }
 
+function toPublicDataUrl(file) {
+  return `/${String(file || "").replace(/^public\//, "")}`;
+}
+
+async function loadEnrichedChunks(rankingManifest) {
+  const chunks = Array.isArray(rankingManifest?.enrichedChunks)
+    ? rankingManifest.enrichedChunks
+    : [];
+  if (chunks.length === 0) return [];
+
+  const responses = await Promise.all(
+    chunks.map((chunk) => fetch(toPublicDataUrl(chunk.file)))
+  );
+  if (responses.some((response) => !response.ok)) {
+    const failed = responses.find((response) => !response.ok);
+    throw new Error(`enriched chunk ${failed.status}`);
+  }
+
+  const payloads = await Promise.all(responses.map((response) => response.json()));
+  return payloads.flatMap((payload) => Array.isArray(payload) ? payload : []);
+}
+
 // ---------------------------------------------------------------------------
 // Hook: load + normalize imported power pool once
 // ---------------------------------------------------------------------------
@@ -174,8 +196,7 @@ function useImportedLibrary() {
 
     async function load() {
       try {
-        const [enrichedResponse, poolResponse, manifestResponse, rankingManifestResponse] = await Promise.all([
-          fetch("/data/superpower-list-enriched.json"),
+        const [poolResponse, manifestResponse, rankingManifestResponse] = await Promise.all([
           fetch("/data/superpower-list-pool.json"),
           fetch("/data/superpower-list-manifest.json"),
           fetch("/data/superpower-list-ranking-manifest.json")
@@ -187,11 +208,30 @@ function useImportedLibrary() {
           ? await rankingManifestResponse.json()
           : null;
         let powers = [];
-        let source = "enriched";
+        let source = "enriched-chunks";
 
-        if (enrichedResponse.ok) {
-          const enriched = await enrichedResponse.json();
-          powers = getVisibleEnrichedPowers(enriched);
+        if (rankingManifest?.enrichedChunks?.length > 0) {
+          try {
+            const chunked = await loadEnrichedChunks(rankingManifest);
+            powers = getVisibleEnrichedPowers(chunked);
+          } catch (error) {
+            appLogger.warn("imported_library_chunk_fallback", {
+              error: serializeError(error)
+            });
+          }
+        }
+
+        if (powers.length === 0) {
+          source = "enriched";
+          const enrichedResponse = await fetch("/data/superpower-list-enriched.json");
+          if (enrichedResponse.ok) {
+            const enriched = await enrichedResponse.json();
+            powers = getVisibleEnrichedPowers(enriched);
+          } else {
+            appLogger.warn("imported_library_enriched_fallback", {
+              reason: `enriched ${enrichedResponse.status}`
+            });
+          }
         }
 
         if (powers.length === 0) {
@@ -201,7 +241,7 @@ function useImportedLibrary() {
           powers = buildImportedLibrary(published);
           source = "pool";
           appLogger.warn("imported_library_enriched_fallback", {
-            reason: enrichedResponse.ok ? "no-visible-enriched-powers" : `enriched ${enrichedResponse.status}`
+            reason: "no-visible-enriched-powers"
           });
         }
 
@@ -1730,7 +1770,8 @@ function TaxonomyView({ library, categoryCounts }) {
 
 function SourcesView({ rankingManifest, importedSource }) {
   const roadmap = useMemo(() => getDataSourceRoadmap(DATA_SOURCE_STRATEGIES), []);
-  const hiddenReview = useHiddenRankingReview(Boolean(rankingManifest?.hiddenRecords && importedSource === "enriched"));
+  const isQualityGatedSource = importedSource === "enriched" || importedSource === "enriched-chunks";
+  const hiddenReview = useHiddenRankingReview(Boolean(rankingManifest?.hiddenRecords && isQualityGatedSource));
   const [activeHiddenReason, setActiveHiddenReason] = useState("all");
   const hiddenReasonEntries = Object.entries(rankingManifest?.hiddenReasons ?? {});
   const visibleHiddenReview = useMemo(() => {
@@ -1759,7 +1800,7 @@ function SourcesView({ rankingManifest, importedSource }) {
             </p>
             {importedSource && (
               <p className="ranking-manifest-card__source">
-                Active imported source: {importedSource === "enriched" ? "quality-gated enriched data" : "fallback imported pool"}
+                Active imported source: {isQualityGatedSource ? "quality-gated enriched data" : "fallback imported pool"}
               </p>
             )}
           </div>
@@ -1796,7 +1837,7 @@ function SourcesView({ rankingManifest, importedSource }) {
           )}
         </div>
       )}
-      {rankingManifest?.hiddenRecords > 0 && importedSource === "enriched" && (
+      {rankingManifest?.hiddenRecords > 0 && isQualityGatedSource && (
         <section className="hidden-review-panel" aria-label="Hidden imported records review">
           <div className="hidden-review-panel__header">
             <div>
@@ -2280,7 +2321,7 @@ export default function App() {
                   canon {sourceCounts.canon || 0} · imported{" "}
                   {(sourceCounts.imported || 0).toLocaleString()}
                 </p>
-                {imported.source === "enriched" && imported.rankingManifest?.hiddenRecords > 0 && (
+                {(imported.source === "enriched" || imported.source === "enriched-chunks") && imported.rankingManifest?.hiddenRecords > 0 && (
                   <p className="quality-meta">
                     {imported.rankingManifest.hiddenRecords.toLocaleString()} imported records hidden by quality gate
                   </p>

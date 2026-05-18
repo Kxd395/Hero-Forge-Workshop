@@ -80,6 +80,7 @@ Payload audit:
 | Asset | Raw | Gzip |
 | --- | ---: | ---: |
 | Enriched browser payload | 13.19 MB | 2.64 MB |
+| Largest category chunk | 4.19 MB | 820.48 KB |
 | Ranking audit payload | 12.20 MB | 769.50 KB |
 | Hidden review payload | 66.55 KB | 5.20 KB |
 

@@ -2,10 +2,72 @@
   "schemaVersion": 1,
   "pipelineVersion": "ranking-pipeline-v1",
   "rulesetVersion": "ranking-rules-v1",
-  "generatedAt": "2026-05-18T03:08:22.950Z",
+  "generatedAt": "2026-05-18T03:13:05.902Z",
   "inputHash": "4aa9eadee20f801aa6fa5c92c2dfd898d5e748d2ce4f7afb855793221ab62d84",
   "sourceFile": "public/data/superpower-list-pool.json",
   "enrichedFile": "public/data/superpower-list-enriched.json",
+  "enrichedChunks": [
+    {
+      "category": "physical",
+      "file": "public/data/imported-powers/physical.json",
+      "records": 2811,
+      "visibleRecords": 2773
+    },
+    {
+      "category": "elemental",
+      "file": "public/data/imported-powers/elemental.json",
+      "records": 1236,
+      "visibleRecords": 1218
+    },
+    {
+      "category": "psychic",
+      "file": "public/data/imported-powers/psychic.json",
+      "records": 1131,
+      "visibleRecords": 1094
+    },
+    {
+      "category": "energy",
+      "file": "public/data/imported-powers/energy.json",
+      "records": 525,
+      "visibleRecords": 521
+    },
+    {
+      "category": "mobility",
+      "file": "public/data/imported-powers/mobility.json",
+      "records": 414,
+      "visibleRecords": 402
+    },
+    {
+      "category": "biological",
+      "file": "public/data/imported-powers/biological.json",
+      "records": 882,
+      "visibleRecords": 863
+    },
+    {
+      "category": "tech",
+      "file": "public/data/imported-powers/tech.json",
+      "records": 287,
+      "visibleRecords": 285
+    },
+    {
+      "category": "mystic",
+      "file": "public/data/imported-powers/mystic.json",
+      "records": 509,
+      "visibleRecords": 490
+    },
+    {
+      "category": "cosmic",
+      "file": "public/data/imported-powers/cosmic.json",
+      "records": 639,
+      "visibleRecords": 632
+    },
+    {
+      "category": "stealth",
+      "file": "public/data/imported-powers/stealth.json",
+      "records": 97,
+      "visibleRecords": 92
+    }
+  ],
   "auditFile": "public/data/superpower-list-ranking-audit.json",
   "hiddenReviewFile": "public/data/superpower-list-hidden-review.json",
   "totalRecords": 8531,
