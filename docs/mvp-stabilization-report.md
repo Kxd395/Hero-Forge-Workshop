@@ -138,7 +138,7 @@ Not yet fully production-polished because:
 - no human admin review mode for hidden/imported records
 - no screenshot-based visual regression checks
 - accessibility has smoke coverage but not full traversal/assistive-tech validation
-- type safety now covers core utilities and pipeline scripts, but not the React UI
+- type safety now covers the main React app, core utilities, and pipeline scripts, but component props are still not explicitly typed
 - large static JSON remains acceptable by gzip budget but should be watched
 
 ## Recommended Next Steps
@@ -147,7 +147,7 @@ Not yet fully production-polished because:
 2. If preview is acceptable, run an explicit production deploy.
 3. Add admin review mode for hidden imported records.
 4. Add screenshot checks for mobile card clipping and sticky-panel regressions.
-5. Expand typechecking into `App.jsx` after the component tree is split into smaller modules.
+5. Split `App.jsx` into smaller components and add explicit JSDoc/TypeScript prop contracts.
 
 ## Rollback
 

@@ -948,7 +948,7 @@ export function buildHeroDraftFromSlots(build) {
   const missingSteps = getMissingBuildSteps(build);
   const checklist = getHeroBuildChecklist(build);
   const generatedName = buildHeroNameFromSlots(build, selectedPowers);
-  const draft = {
+  const draftBase = {
     heroName: build.alias?.trim() || generatedName,
     generatedName,
     classification: classifyHero(selectedPowers),
@@ -973,8 +973,13 @@ export function buildHeroDraftFromSlots(build) {
             ? "Character sheet ready for story work."
             : "Draft needs stronger synergy or a clearer limitation."
   };
-  draft.quality = buildQualityMetrics(build, draft);
-  draft.recommendations = buildRecommendations(build, draft);
+  const quality = buildQualityMetrics(build, draftBase);
+  const recommendations = buildRecommendations(build, draftBase);
+  const draft = {
+    ...draftBase,
+    quality,
+    recommendations
+  };
   return {
     ...draft,
     characterSheet: buildCharacterSheet(build, draft),

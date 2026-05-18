@@ -7,11 +7,13 @@
     "module": "ESNext",
     "moduleResolution": "Bundler",
     "lib": ["ESNext", "DOM"],
-    "types": ["node"],
+    "jsx": "react-jsx",
+    "types": ["node", "react", "react-dom"],
     "skipLibCheck": true
   },
   "include": [
     "scripts/*.mjs",
+    "src/App.jsx",
     "src/utils/dataSourceModel.js",
     "src/utils/heroBuilder.js",
     "src/utils/importedPowerPool.js",

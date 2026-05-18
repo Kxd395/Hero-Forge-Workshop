@@ -161,6 +161,10 @@ function toPublicDataUrl(file) {
   return `/${String(file || "").replace(/^public\//, "")}`;
 }
 
+function cssVarStyle(name, value) {
+  return /** @type {import("react").CSSProperties} */ ({ [name]: value });
+}
+
 async function loadEnrichedChunks(rankingManifest) {
   const chunks = Array.isArray(rankingManifest?.enrichedChunks)
     ? rankingManifest.enrichedChunks
@@ -189,7 +193,8 @@ function useImportedLibrary() {
     powers: [],
     manifest: null,
     rankingManifest: null,
-    source: null
+    source: null,
+    error: null
   });
 
   useEffect(() => {
@@ -247,14 +252,14 @@ function useImportedLibrary() {
         }
 
         if (!cancelled) {
-          setState({ status: "ready", powers, manifest, rankingManifest, source });
+          setState({ status: "ready", powers, manifest, rankingManifest, source, error: null });
         }
       } catch (error) {
         appLogger.error("imported_library_load_failed", {
           error: serializeError(error)
         });
         if (!cancelled) {
-          setState({ status: "error", powers: [], manifest: null, rankingManifest: null, error });
+          setState({ status: "error", powers: [], manifest: null, rankingManifest: null, source: null, error });
         }
       }
     }
@@ -414,7 +419,7 @@ function PowerCard({
   onCloseDetails
 }) {
   const Icon = CATEGORY_ICON[power.category] ?? Sparkles;
-  const cardStyle = { "--card-accent": power.categoryAccent };
+  const cardStyle = cssVarStyle("--card-accent", power.categoryAccent);
   const sourceLabel = power.source === "canon" ? "Canon" : "Imported";
   const isSelected = Boolean(assignedSlot);
   const recommendedSlot = getRecommendedSlot(power);
@@ -683,7 +688,7 @@ function CategoryRail({
             className={`category-pill${isActive ? " is-active" : ""}`}
             onClick={() => !disabled && onSelect(category.id)}
             disabled={disabled}
-            style={{ "--category-accent": category.accent }}
+            style={cssVarStyle("--category-accent", category.accent)}
           >
             <Icon size={16} />
             <span>{category.name}</span>
@@ -745,7 +750,7 @@ function CompareTray({ comparedPowers, activeSlot, onAssignPower, onRemove, onCl
       </div>
       <div className="compare-grid">
         {comparedPowers.map((power) => (
-          <article key={power.id} className="compare-card" style={{ "--card-accent": power.categoryAccent }}>
+          <article key={power.id} className="compare-card" style={cssVarStyle("--card-accent", power.categoryAccent)}>
             <header>
               <div>
                 <h4>{power.name}</h4>
@@ -1278,7 +1283,7 @@ function OriginSourcePicker({ value, onSelect, onClear }) {
       id="origin-source-picker"
       className="origin-source-panel"
       aria-label="Origin source"
-      tabIndex="-1"
+      tabIndex={-1}
     >
       <header>
         <div>
@@ -1755,7 +1760,7 @@ function TaxonomyView({ library, categoryCounts }) {
             <article
               key={category.id}
               className="breakdown-item"
-              style={{ "--category-accent": category.accent }}
+              style={cssVarStyle("--category-accent", category.accent)}
             >
               <Icon size={22} aria-hidden="true" />
               <h3>{category.name}</h3>
@@ -2091,6 +2096,7 @@ export default function App() {
     return new Set(powers.map((power) => power.id));
   }, [heroBuild, reviewSlot, selectedPowers]);
   const assignedSlotById = useMemo(() => {
+    /** @type {Array<[string, string | null]>} */
     const entries = selectedPowers.map((power) => [power.id, findPowerSlot(heroBuild, power.id)]);
     return new Map(entries);
   }, [heroBuild, selectedPowers]);
