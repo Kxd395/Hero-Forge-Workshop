@@ -123,6 +123,42 @@ test("keeps long imported power names wrapped instead of clipped", async ({ page
   expect(style.scrollWidth).toBeLessThanOrEqual(style.clientWidth + 1);
 });
 
+test("keeps power detail popovers inside the mobile viewport", async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto("/");
+
+  await page.getByRole("button", { name: "Imported" }).click();
+  await page.getByPlaceholder(/search by name/i).fill("fog shield");
+  const fogShieldCard = page.locator(".power-card").filter({
+    has: page.getByRole("heading", { name: "Fog Shield", exact: true })
+  }).first();
+  await expect(fogShieldCard).toBeVisible();
+
+  await fogShieldCard.getByRole("button", { name: /full details/i }).click();
+  const details = fogShieldCard.locator(".power-detail-popover");
+  await expect(details.getByText("Ranking rationale")).toBeVisible();
+
+  const layout = await details.evaluate((element) => {
+    const rect = element.getBoundingClientRect();
+    return {
+      left: rect.left,
+      right: rect.right,
+      width: rect.width,
+      viewportWidth: globalThis.window.innerWidth,
+      documentWidth: globalThis.document.documentElement.scrollWidth,
+      rankingColumns: globalThis.getComputedStyle(
+        element.querySelector(".ranking-label-grid")
+      ).gridTemplateColumns.split(" ").length
+    };
+  });
+
+  expect(layout.left).toBeGreaterThanOrEqual(0);
+  expect(layout.right).toBeLessThanOrEqual(layout.viewportWidth);
+  expect(layout.documentWidth).toBeLessThanOrEqual(layout.viewportWidth);
+  expect(layout.width).toBeGreaterThan(250);
+  expect(layout.rankingColumns).toBe(2);
+});
+
 test("saves, clears, and reloads a draft with the selected primary power", async ({ page }) => {
   await page.goto("/");
 
@@ -314,4 +350,23 @@ test("opens and closes power details from keyboard focus", async ({ page }) => {
   await closeButton.focus();
   await page.keyboard.press("Enter");
   await expect(telepathyCard.getByText("Complete power card")).toHaveCount(0);
+});
+
+test("keeps the sticky hero forge panel bounded while scrolling desktop", async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto("/");
+
+  await page.mouse.wheel(0, 1200);
+  await expect(page.getByRole("region", { name: "Hero draft" })).toBeVisible();
+
+  const asideBox = await page.locator(".forge-aside").boundingBox();
+  expect(asideBox).not.toBeNull();
+  expect(asideBox.x).toBeGreaterThan(900);
+  expect(asideBox.y).toBeGreaterThanOrEqual(60);
+  expect(asideBox.y + asideBox.height).toBeLessThanOrEqual(900);
+
+  const hasHorizontalOverflow = await page.evaluate(
+    () => globalThis.document.documentElement.scrollWidth > globalThis.window.innerWidth
+  );
+  expect(hasHorizontalOverflow).toBe(false);
 });

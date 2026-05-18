@@ -137,12 +137,14 @@ Current automated coverage:
 - Primary assignment shows visible status feedback
 - compare tray can assign directly to Utility
 - mobile viewport loads, searches, and keeps the forge panel reachable
+- mobile power detail popovers stay inside the viewport and use a readable ranking layout
 - save/load draft smoke path persists one selected power and reloads it from LocalStorage
 - stale saved draft powers rehydrate to current catalog records on load
 - review-all mode shows selected powers even after filters/search would otherwise hide them
 - keyboard focus can open and close a power detail popover
 - keyboard-only search and primary assignment works
 - long imported power names wrap instead of clipping at mobile width
+- desktop sticky Hero Forge panel stays bounded while scrolling
 
 Additional browser flows still needed:
 
@@ -150,9 +152,9 @@ Additional browser flows still needed:
 2. Assign Primary, Secondary, and Utility.
 3. Reload a saved draft with origin and profile fields.
 4. Add full keyboard traversal around filters, assignment buttons, compare tray, and Hero draft.
-5. Add screenshot checks for mobile clipping regressions.
+5. Add screenshot snapshots for the mobile and desktop layout smoke states.
 
-Mobile smoke is now automated at a basic level. It still needs visual screenshot checks for card clipping and sticky-panel regressions.
+Mobile and sticky-panel geometry smoke is automated at a DOM/layout level. It still needs screenshot snapshots to catch purely visual regressions.
 
 ## Ranking Tests To Add Later
 

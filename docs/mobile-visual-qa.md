@@ -43,6 +43,10 @@ Current Playwright smoke coverage checks:
 - search works
 - Hero draft region is present
 - document width does not exceed viewport width
+- long imported power names wrap instead of clipping
+- mobile detail popovers stay inside the viewport
+- mobile ranking labels use a two-column readable layout inside details
+- desktop sticky Hero Forge panel stays bounded while scrolling
 
 Future screenshot coverage should capture:
 

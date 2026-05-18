@@ -113,7 +113,7 @@ npm run verify
 Current automated coverage:
 
 - 54 Vitest unit/model tests
-- 15 Playwright browser smoke tests
+- 17 Playwright browser smoke tests
 
 Browser smoke coverage includes:
 
@@ -122,12 +122,14 @@ Browser smoke coverage includes:
 - primary assignment feedback
 - compare-tray direct assignment
 - mobile-width library/forge usability
+- mobile detail popover viewport bounds
 - saved draft save/clear/load
 - stale saved draft rehydration from the current catalog
 - review-all selected powers overriding filters
 - quality-gate manifest display
 - raw imported-pool fallback
 - keyboard open/close for power details
+- desktop sticky Hero Forge panel bounds while scrolling
 
 ## Production Readiness
 

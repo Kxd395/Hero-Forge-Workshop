@@ -3785,6 +3785,10 @@ button {
     grid-template-columns: 1fr;
   }
 
+  .ranking-label-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
   .selection-pill {
     left: var(--space-3);
     right: var(--space-3);

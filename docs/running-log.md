@@ -124,10 +124,12 @@ This is the working log for active Hero Forge Workshop changes. Add short entrie
 - Added unit and browser regression coverage for stale saved draft power rehydration.
 - Added `src/App.jsx` to the enforced TypeScript `checkJs` gate and fixed the surfaced UI shape issues.
 - Added Playwright browser smoke tests to the enforced TypeScript `checkJs` gate.
+- Fixed mobile ranking rationale details to use two columns instead of four inside power detail popovers.
+- Added Playwright geometry coverage for mobile detail popover bounds and desktop sticky Hero Forge panel bounds.
 
 ## Active Work Queue
 
-1. Expand browser smoke tests for full tab-order traversal and sticky/detail-panel clipping.
+1. Expand browser smoke tests for full tab-order traversal.
 2. Add lazy active-category loading once search/index behavior can support cross-category search without downloading every chunk.
 3. Add a real moderation workflow if hidden records need human approve/reject state instead of read-only audit review.
 
