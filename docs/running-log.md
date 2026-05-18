@@ -128,10 +128,11 @@ This is the working log for active Hero Forge Workshop changes. Add short entrie
 - Added Playwright geometry coverage for mobile detail popover bounds and desktop sticky Hero Forge panel bounds.
 - Added visible-on-focus skip links for the power library and Hero draft landmarks.
 - Added Playwright keyboard coverage for skip-link traversal.
+- Added Playwright keyboard coverage for source filters, card Compare, and compare-tray Utility assignment.
 
 ## Active Work Queue
 
-1. Expand browser smoke tests for deep tab-order traversal inside filters, cards, compare tray, and draft controls.
+1. Expand browser smoke tests for keyboard traversal inside stat sliders, pagination, saved drafts, and draft controls.
 2. Add lazy active-category loading once search/index behavior can support cross-category search without downloading every chunk.
 3. Add a real moderation workflow if hidden records need human approve/reject state instead of read-only audit review.
 

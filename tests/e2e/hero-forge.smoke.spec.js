@@ -1,5 +1,20 @@
 import { expect, test } from "@playwright/test";
 
+/**
+ * @param {import("@playwright/test").Page} page
+ * @param {import("@playwright/test").Locator} locator
+ * @param {number} maxTabs
+ */
+async function tabUntilFocused(page, locator, maxTabs = 60) {
+  for (let index = 0; index < maxTabs; index += 1) {
+    await page.keyboard.press("Tab");
+    const isFocused = await locator.evaluate((element) => element === globalThis.document.activeElement);
+    if (isFocused) return;
+  }
+
+  throw new Error(`Target was not reached after ${maxTabs} Tab presses`);
+}
+
 test("loads the enriched power library without public score chips", async ({ page }) => {
   await page.goto("/");
 
@@ -102,6 +117,40 @@ test("compares a power and assigns it directly to utility", async ({ page }) => 
   const compareCard = page.locator(".compare-card").filter({ hasText: "Flight" }).first();
   await expect(compareCard).toBeVisible();
   await compareCard.getByRole("button", { name: "Utility" }).click();
+
+  await expect(page.getByRole("status").filter({ hasText: /assigned flight to utility/i })).toBeVisible();
+});
+
+test("tabs through filters, card actions, and compare assignment", async ({ page }) => {
+  await page.goto("/");
+
+  await page.keyboard.press("Tab");
+  await page.keyboard.press("Enter");
+  await expect(page.locator("#power-library")).toBeFocused();
+
+  await page.keyboard.press("Tab");
+  await expect(page.getByPlaceholder(/search by name/i)).toBeFocused();
+  await page.keyboard.type("flight");
+
+  const canonButton = page.getByRole("button", { name: "Canon" });
+  await tabUntilFocused(page, canonButton, 8);
+  await page.keyboard.press("Enter");
+
+  const flightCard = page.locator(".power-card").filter({
+    has: page.getByRole("heading", { name: "Flight", exact: true })
+  }).first();
+  await expect(flightCard).toBeVisible();
+
+  const compareButton = flightCard.getByRole("button", { name: "Compare" });
+  await tabUntilFocused(page, compareButton, 120);
+  await page.keyboard.press("Enter");
+
+  const compareCard = page.locator(".compare-card").filter({ hasText: "Flight" }).first();
+  await expect(compareCard).toBeVisible();
+
+  const utilityButton = compareCard.getByRole("button", { name: "Utility" });
+  await tabUntilFocused(page, utilityButton, 80);
+  await page.keyboard.press("Enter");
 
   await expect(page.getByRole("status").filter({ hasText: /assigned flight to utility/i })).toBeVisible();
 });
