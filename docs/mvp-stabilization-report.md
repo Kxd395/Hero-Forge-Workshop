@@ -10,6 +10,12 @@ Stable checkpoint commit:
 7f70dca Stabilize hero forge MVP
 ```
 
+Latest documentation checkpoint:
+
+```text
+a03185b Document MVP stabilization checkpoint
+```
+
 GitHub branch:
 
 ```text
