@@ -544,8 +544,39 @@ export const LIBRARY_PREVIEW_LIMIT = 60;
 export const LIBRARY_PAGE_SIZES = [24, 60, 120];
 
 /**
+ * @typedef {object} StatFilters
+ * @property {number} [offense]
+ * @property {number} [defense]
+ * @property {number} [mobility]
+ * @property {number} [utility]
+ * @property {number} [control]
+ * @property {number} [risk]
+ */
+
+/**
+ * @typedef {object} LibraryFilterOptions
+ * @property {Array<any>} [powers]
+ * @property {string} [query]
+ * @property {string} [category]
+ * @property {string} [subcategory]
+ * @property {string} [tier]
+ * @property {string} [source]
+ * @property {string} [slotFit]
+ * @property {Array<string>} [originCategoryIds]
+ * @property {boolean} [prioritizeOriginFit]
+ * @property {StatFilters} [statFilters]
+ * @property {string} [sortBy]
+ * @property {string} [activeSlot]
+ * @property {Set<string> | Array<string> | null} [selectedPowerIds]
+ * @property {number} [limit]
+ * @property {number} [page]
+ */
+
+/**
  * Single, unified filter for the whole library. Supports every facet the UI
  * needs (search, category, tier, source, sort, pagination).
+ *
+ * @param {LibraryFilterOptions} [options]
  */
 export function filterLibrary({
   powers,
@@ -565,7 +596,7 @@ export function filterLibrary({
   page = 1
 } = {}) {
   const normalizedQuery = query.trim().toLowerCase();
-  const selectedSet = selectedPowerIds?.size > 0
+  const selectedSet = selectedPowerIds instanceof Set && selectedPowerIds.size > 0
     ? selectedPowerIds
     : Array.isArray(selectedPowerIds) && selectedPowerIds.length > 0
       ? new Set(selectedPowerIds)
@@ -610,6 +641,9 @@ export function filterLibrary({
   };
 }
 
+/**
+ * @param {Pick<LibraryFilterOptions, "powers" | "category" | "query" | "tier" | "source" | "slotFit" | "statFilters">} [options]
+ */
 export function getLibrarySubcategoryCounts({
   powers,
   category = "all",

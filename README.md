@@ -60,7 +60,7 @@ The current import contains 12,798 records, including 8,531 published records.
 npm run verify
 ```
 
-`npm run verify` runs the generated power asset audit, unit tests, Playwright browser smoke tests, lint, and production build.
+`npm run verify` runs the generated power asset audit, scoped TypeScript check, unit tests, Playwright browser smoke tests, lint, and production build.
 
 ## Architecture Notes
 

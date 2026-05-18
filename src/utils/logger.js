@@ -32,6 +32,16 @@ export function redactMetadata(metadata, redactKeys = DEFAULT_REDACT_KEYS) {
   );
 }
 
+/**
+ * @typedef {object} LoggerOptions
+ * @property {string} [namespace]
+ * @property {Pick<Console, "debug" | "info" | "warn" | "error">} [sink]
+ * @property {() => string | null | undefined} [getCorrelationId]
+ */
+
+/**
+ * @param {LoggerOptions} [options]
+ */
 export function createLogger({ namespace = "app", sink = console, getCorrelationId } = {}) {
   function write(level, event, metadata = {}) {
     const payload = {

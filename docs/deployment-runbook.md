@@ -34,7 +34,7 @@ Run before pushing or deploying:
 npm run verify
 ```
 
-`npm run verify` runs the generated power asset audit, unit tests, browser smoke tests, lint, and production build.
+`npm run verify` runs the generated power asset audit, scoped TypeScript check, unit tests, browser smoke tests, lint, and production build.
 
 Regenerate taxonomy docs separately when category, power, import, or ranking logic changes:
 

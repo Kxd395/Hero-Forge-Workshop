@@ -114,6 +114,9 @@ This is the working log for active Hero Forge Workshop changes. Add short entrie
 - Added Playwright fallback coverage for chunk failure and enriched-payload failure.
 - Added a browser regression test proving normal startup uses chunk files without requesting `superpower-list-enriched.json`.
 - Added a 1 MB gzip budget for the largest category chunk in `npm run audit:powers`.
+- Added `tsconfig.typecheck.json` and `npm run typecheck` for core utility and pipeline modules.
+- Added TypeScript/React/Node type packages and wired typechecking into `npm run verify`.
+- Added JSDoc contracts for the logger and library filter APIs so core model/pipeline typechecking passes without suppressions.
 
 ## Active Work Queue
 
@@ -124,8 +127,9 @@ This is the working log for active Hero Forge Workshop changes. Add short entrie
 ## Open Risks
 
 - Project is not fully type-safe yet.
+- `App.jsx` and browser tests are not yet inside the TypeScript check gate.
 - Imported dataset is community-generated; first-pass quality flags exist, but human moderation workflow is not implemented.
 - Enriched runtime payload is still large and needs measured browser performance.
 - Saved drafts now have a schema version on new saves, but migrations/rehydration are not complete.
 - Accessibility expectations are documented but not tested.
-- Performance budgets are not enforced.
+- Performance budgets are partially enforced through `npm run audit:powers`.

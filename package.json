@@ -16,7 +16,8 @@
     "test:e2e": "playwright test",
     "test:watch": "vitest src",
     "lint": "eslint .",
-    "verify": "npm run audit:powers && npm run test && npm run test:e2e && npm run lint && npm run build"
+    "verify": "npm run audit:powers && npm run typecheck && npm run test && npm run test:e2e && npm run lint && npm run build",
+    "typecheck": "tsc -p tsconfig.typecheck.json"
   },
   "dependencies": {
     "@vitejs/plugin-react": "^5.0.4",
@@ -29,6 +30,9 @@
   },
   "devDependencies": {
     "@playwright/test": "^1.60.0",
+    "@types/node": "^25.8.0",
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3",
     "eslint": "^9.35.0",
     "eslint-plugin-react": "^7.37.5",
     "eslint-plugin-react-hooks": "^5.2.0",

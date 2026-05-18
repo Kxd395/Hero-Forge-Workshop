@@ -10,7 +10,7 @@ Run from the project root:
 npm run verify
 ```
 
-`npm run verify` runs the power asset audit, unit tests, browser smoke tests, lint, and production build.
+`npm run verify` runs the power asset audit, scoped TypeScript check, unit tests, browser smoke tests, lint, and production build.
 
 Regenerate docs separately when taxonomy/category logic changes:
 
