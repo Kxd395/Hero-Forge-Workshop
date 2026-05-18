@@ -99,6 +99,10 @@ This is the working log for active Hero Forge Workshop changes. Add short entrie
 - Added `VERCEL_AUTOMATION_BYPASS_SECRET` support for Playwright through Vercel's `x-vercel-protection-bypass` header.
 - Recalibrated ranking v1 display labels so imported powers spread more usefully across core/advanced/legendary, risk, and confidence buckets.
 - Added ranking distribution summaries to the generated ranking manifest and power asset audit output.
+- Added per-power ranking rationale to imported power detail popovers, including rating, risk, recommended fit, confidence, and evidence summary chips.
+- Added Playwright smoke coverage for imported ranking rationale visibility.
+- Verified the ranking-rationale checkpoint with `npm run verify`: asset audit, 52 unit tests, 10 browser smoke tests, lint, and production build all passed.
+- Pushed commit `0da1fee` and created preview deployment `https://hero-forge-workshop-bvlwgpqa8-kxd395s-projects.vercel.app`.
 
 ## Active Work Queue
 
