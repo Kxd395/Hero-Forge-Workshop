@@ -147,7 +147,7 @@ stat tile (base power count). No giant diagonal ribbon.
 │ ▎[icon] CANON · PHYSICAL        + Add │
 │        Super Strength                  │
 │        Amplified muscular output …     │
-│   core   Brawler   23 score            │
+│   Core   Brawler   Best as Primary     │
 ├────────────────────────────────────────┤
 │ OFF 9 ▓▓▓▓▓▓▓▓▓░    DEF 5 ▓▓▓▓▓░░░░░ │  ← stats in 2 cols
 │ MOB 4 ▓▓▓▓░░░░░░    UTL 6 ▓▓▓▓▓▓░░░░ │
@@ -168,35 +168,37 @@ Canon powers and imported powers must use the same `power-card` visual grammar:
 
 The source is allowed to change the content, not the component language:
 
-- Canon cards show category, tier, role, score, stat bars, and counters.
-- Imported cards show import state, ratio, votes, description, and tags.
+- Canon cards show category, tier, role, slot fit, scope, stat bars, and counters.
+- Imported cards show source state, tier, slot fit, scope, normalized stats, description, and tags.
 
 Key constraints:
 
 - Never create a separate visual card family for imported powers.
-- Imported pool cards can omit stat bars, but they keep the same card shell.
+- Imported pool cards use inferred stat bars, but the UI labels those rankings as guidance rather than universal truth.
 - Risk bar is tinted red to make tradeoffs obvious on canon cards.
 
 ### 6.4 Pool Card (imported power)
 
-Same shell as the canon power card but without stats. Ratio and votes are shown
-in the metadata row. Tags render in the same footer region where canon cards
-show counters.
+Same shell as the canon power card. Import source and confidence signals are
+shown in the metadata row. Tags render in the same footer region where canon
+cards show counters.
 
 ### 6.5 Hero Builder
 
-Slot-based layout: **Selected powers** (left, grouped by origin, primary,
-secondary, utility, and limitation) + **Profile** (right, generated identity,
-stats, strengths, limits, tags, synergy, and story hook). The slot strip above
-the catalog controls where the next selected power goes. When zero powers are
-selected the Builder shows an empty state that tells the user to pick a slot
-first, then assign powers from the library.
+Builder layout: **Power Origin** + **Selected powers** (grouped by primary,
+secondary, and utility) + **Profile** (generated identity, stats, strengths,
+derived limits, tags, synergy, and story hook). The origin picker explains how
+powers were gained and biases recommendations. The slot strip above the catalog
+controls where the next selected power goes. When zero powers are selected the
+Builder shows an empty state that tells the user to pick an origin or power slot,
+then assign powers from the library.
 
 Rules:
 
 - Primary power drives the alias and aggregate role more than secondary powers.
-- Utility and limitation slots increase readiness because they make a hero more
-  usable and narratively balanced.
+- Utility powers increase readiness because they make a hero more usable in the
+  field. Derived limits increase balance because they expose costs, range
+  problems, risks, counters, or story constraints from the selected powers.
 - A power can appear in only one slot at a time. Reassigning moves it.
 - Secondary powers are capped at three to avoid turning the draft into a loose
   inventory.
@@ -211,9 +213,10 @@ Users can pin up to four powers from the library to compare stat blocks before
 assigning one to the active hero slot. The tray sits between slot selection and
 sorting so it remains close to the decision point.
 
-Cards expose direct role assignment buttons for Primary, Secondary, Utility,
-Limitation, and Origin. The recommended slot is visually marked, but the user
-can override it without changing the active slot strip.
+Cards expose direct role assignment buttons for Primary, Secondary, and Utility.
+Origin is selected from the origin picker, not from power cards. The recommended
+slot is visually marked, but the user can override it without changing the active
+slot strip.
 
 ### 6.7 Sticky Selection Pill
 
@@ -230,12 +233,12 @@ persistent reminder that work-in-progress exists.
 - The active pill uses the brand color background with inverted text.
 - Sorting supports global quality and stat-specific high-to-low views so the
   large imported pool can be explored by intent, not only by name.
-- Recommended sorting is slot-aware. It scores powers differently for Origin,
-  Primary, Secondary, Utility, and Limitation so the library changes with the
-  active build task.
+- Recommended sorting is slot-aware. It scores powers differently for Primary,
+  Secondary, and Utility so the library changes with the active build task.
+  Origin category fit is a separate boost layered on top of the current sort.
 - Recommended-slot filtering is separate from active-slot sorting. It narrows
-  the pool to powers best used as Primary, Secondary, Utility, Limitation, or
-  Origin while keeping the same recommendation rules shown on each card.
+  the pool to powers best used as Primary, Secondary, or Utility while keeping
+  the same recommendation rules shown on each card.
 - Pagination is mandatory for the library. Never strand users on the first
   result slice; show page count, next/previous, and page size.
 - Stat filters support minimum offense, defense, mobility, utility, and control,

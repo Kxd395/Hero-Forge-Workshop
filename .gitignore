@@ -1,6 +1,8 @@
 node_modules/
 dist/
 .vercel/
+test-results/
+playwright-report/
 .DS_Store
 *.log
 npm-debug.log*

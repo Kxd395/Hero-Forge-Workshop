@@ -57,6 +57,14 @@ import {
   getRecommendedSlot,
   mergeLibraries
 } from "./utils/powerLibrary.js";
+import { appLogger, serializeError } from "./utils/logger.js";
+import { getPowerRankingDisplay } from "./utils/rankingModel.js";
+import {
+  SAVED_DRAFT_SCHEMA_VERSION,
+  getPublishedImportedRecords,
+  getVisibleEnrichedPowers,
+  normalizeSavedDrafts
+} from "./utils/runtimeGuards.js";
 
 // ---------------------------------------------------------------------------
 // Static config
@@ -139,37 +147,59 @@ const VIEWS = [
 // ---------------------------------------------------------------------------
 
 function useImportedLibrary() {
-  const [state, setState] = useState({ status: "loading", powers: [], manifest: null });
+  const [state, setState] = useState({
+    status: "loading",
+    powers: [],
+    manifest: null,
+    rankingManifest: null,
+    source: null
+  });
 
   useEffect(() => {
     let cancelled = false;
 
     async function load() {
       try {
-        const [poolResponse, manifestResponse] = await Promise.all([
+        const [enrichedResponse, poolResponse, manifestResponse, rankingManifestResponse] = await Promise.all([
+          fetch("/data/superpower-list-enriched.json"),
           fetch("/data/superpower-list-pool.json"),
-          fetch("/data/superpower-list-manifest.json")
+          fetch("/data/superpower-list-manifest.json"),
+          fetch("/data/superpower-list-ranking-manifest.json")
         ]);
 
-        if (!poolResponse.ok) throw new Error(`pool ${poolResponse.status}`);
         if (!manifestResponse.ok) throw new Error(`manifest ${manifestResponse.status}`);
+        const manifest = await manifestResponse.json();
+        const rankingManifest = rankingManifestResponse.ok
+          ? await rankingManifestResponse.json()
+          : null;
+        let powers = [];
+        let source = "enriched";
 
-        const [rawPool, manifest] = await Promise.all([
-          poolResponse.json(),
-          manifestResponse.json()
-        ]);
+        if (enrichedResponse.ok) {
+          const enriched = await enrichedResponse.json();
+          powers = getVisibleEnrichedPowers(enriched);
+        }
 
-        const published = Array.isArray(rawPool)
-          ? rawPool.filter((entry) => entry?.state === "published")
-          : [];
-        const powers = buildImportedLibrary(published);
+        if (powers.length === 0) {
+          if (!poolResponse.ok) throw new Error(`pool ${poolResponse.status}`);
+          const rawPool = await poolResponse.json();
+          const published = getPublishedImportedRecords(rawPool);
+          powers = buildImportedLibrary(published);
+          source = "pool";
+          appLogger.warn("imported_library_enriched_fallback", {
+            reason: enrichedResponse.ok ? "no-visible-enriched-powers" : `enriched ${enrichedResponse.status}`
+          });
+        }
 
         if (!cancelled) {
-          setState({ status: "ready", powers, manifest });
+          setState({ status: "ready", powers, manifest, rankingManifest, source });
         }
       } catch (error) {
+        appLogger.error("imported_library_load_failed", {
+          error: serializeError(error)
+        });
         if (!cancelled) {
-          setState({ status: "error", powers: [], manifest: null, error });
+          setState({ status: "error", powers: [], manifest: null, rankingManifest: null, error });
         }
       }
     }
@@ -187,8 +217,11 @@ function loadSavedDrafts() {
   try {
     const raw = window.localStorage.getItem(SAVED_DRAFTS_KEY);
     const parsed = raw ? JSON.parse(raw) : [];
-    return Array.isArray(parsed) ? parsed : [];
-  } catch {
+    return normalizeSavedDrafts(parsed);
+  } catch (error) {
+    appLogger.warn("saved_drafts_load_failed", {
+      error: serializeError(error)
+    });
     return [];
   }
 }
@@ -276,6 +309,7 @@ function PowerCard({
   const isSelected = Boolean(assignedSlot);
   const recommendedSlot = getRecommendedSlot(power);
   const scope = getPowerScope(power);
+  const ranking = getPowerRankingDisplay(power, recommendedSlot, scope);
   const activeSlotLabel = HERO_SLOTS.find((slot) => slot.id === activeSlot)?.shortLabel ?? "slot";
   const assignedSlotLabel = HERO_SLOTS.find((slot) => slot.id === assignedSlot)?.shortLabel ?? "In draft";
   const quickSlotIds = ["primary", "secondary", "utility"];
@@ -307,17 +341,21 @@ function PowerCard({
             Fits origin
           </span>
         )}
-        <span className="power-card__fit" data-slot={recommendedSlot.slotId}>
-          Best as {recommendedSlot.label}
+        <span className="power-card__fit" data-slot={ranking.bestRole}>
+          {ranking.bestRoleLabel} Fit
         </span>
-        <span className="power-card__scope" data-scope={scope.id}>
-          {scope.label}
+        <span className="power-card__scope" data-scope={ranking.scope}>
+          {ranking.scopeLabel}
         </span>
         <span className="power-card__source" data-source={power.source}>
           {sourceLabel}
         </span>
-        <span className="power-card__chip" data-tier={power.tier}>{power.tier}</span>
-        <span className="power-card__score">Score {power.score}</span>
+        <span className="power-card__chip" data-tier={ranking.rating}>{ranking.rating}</span>
+        <span className="power-card__score" data-risk={ranking.riskLevel}>{ranking.riskLabel}</span>
+        <span className="power-card__chip">{ranking.confidenceLabel}</span>
+        {ranking.constraintRequired && (
+          <span className="power-card__scope" data-scope="expansive">Needs Constraint</span>
+        )}
       </div>
       <p className="power-card__fit-reason">{recommendedSlot.reason}</p>
 
@@ -398,13 +436,18 @@ function PowerCard({
             <div className="power-detail-popover__grid">
               <div>
                 <span>Best use</span>
-                <p>{recommendedSlot.label}: {recommendedSlot.reason}. {scope.guidance}</p>
+                <p>{ranking.bestRoleLabel}: {recommendedSlot.reason}. {scope.guidance}</p>
               </div>
               <div>
                 <span>Role</span>
                 <p>{power.categoryName} · {power.role} · {power.tier}</p>
               </div>
             </div>
+            {power.source === "imported" && (
+              <div className="power-detail-popover__notice">
+                Imported from the Superpower List Database. Ranking labels are inferred guidance, not reviewed canon.
+              </div>
+            )}
             <div className="power-detail-popover__lists">
               <div>
                 <span>Strengths</span>
@@ -549,6 +592,7 @@ function SubcategoryRail({ category, subcategoryCounts, active, onSelect }) {
 function CompareTray({ comparedPowers, activeSlot, onAssignPower, onRemove, onClear }) {
   if (comparedPowers.length === 0) return null;
   const activeSlotLabel = HERO_SLOTS.find((slot) => slot.id === activeSlot)?.shortLabel ?? "slot";
+  const quickSlots = HERO_SLOTS.filter((slot) => ["primary", "secondary", "utility"].includes(slot.id));
 
   return (
     <section className="compare-tray" aria-label="Power comparison">
@@ -579,9 +623,22 @@ function CompareTray({ comparedPowers, activeSlot, onAssignPower, onRemove, onCl
                 </span>
               ))}
             </div>
-            <button type="button" className="select-power" onClick={() => onAssignPower(power, activeSlot)}>
-              <Plus size={14} /> Set {activeSlotLabel}
-            </button>
+            <div className="compare-card__actions">
+              <button type="button" className="select-power" onClick={() => onAssignPower(power, activeSlot)}>
+                <Plus size={14} /> Set {activeSlotLabel}
+              </button>
+              <div className="compare-card__quick-slots" aria-label={`Assign ${power.name} directly from compare`}>
+                {quickSlots.map((slot) => (
+                  <button
+                    key={slot.id}
+                    type="button"
+                    onClick={() => onAssignPower(power, slot.id)}
+                  >
+                    {slot.shortLabel}
+                  </button>
+                ))}
+              </div>
+            </div>
           </article>
         ))}
       </div>
@@ -640,7 +697,8 @@ function PowerLibrary({
   hasPreviousPage,
   totalMatches,
   visible,
-  importedStatus
+  importedStatus,
+  assignmentNotice
 }) {
   const showingImported = importedStatus !== "ready";
   const [openPowerDetailsId, setOpenPowerDetailsId] = useState(null);
@@ -687,6 +745,13 @@ function PowerLibrary({
             </span>
           </div>
           <button type="button" onClick={onClearReview}>Back to browsing</button>
+        </div>
+      )}
+
+      {assignmentNotice && (
+        <div className="assignment-status" role="status" aria-live="polite">
+          <Check size={14} aria-hidden="true" />
+          <span>{assignmentNotice}</span>
         </div>
       )}
 
@@ -1564,7 +1629,7 @@ function TaxonomyView({ library, categoryCounts }) {
   );
 }
 
-function SourcesView() {
+function SourcesView({ rankingManifest, importedSource }) {
   const roadmap = useMemo(() => getDataSourceRoadmap(DATA_SOURCE_STRATEGIES), []);
   return (
     <section className="panel source-roadmap" aria-label="Data sources">
@@ -1577,6 +1642,32 @@ function SourcesView() {
           <strong>{roadmap.length}</strong> tracked sources, prioritized
         </p>
       </div>
+      {rankingManifest && (
+        <div className="ranking-manifest-card" aria-label="Imported power quality gate">
+          <div>
+            <p className="eyebrow">Imported Quality Gate</p>
+            <h3>{rankingManifest.visibleRecords?.toLocaleString()} visible imported powers</h3>
+            <p>
+              {rankingManifest.hiddenRecords?.toLocaleString()} records are hidden by deterministic quality/content rules before browsing.
+            </p>
+            {importedSource && (
+              <p className="ranking-manifest-card__source">
+                Active imported source: {importedSource === "enriched" ? "quality-gated enriched data" : "fallback imported pool"}
+              </p>
+            )}
+          </div>
+          {rankingManifest.hiddenReasons && (
+            <dl>
+              {Object.entries(rankingManifest.hiddenReasons).map(([reason, count]) => (
+                <div key={reason}>
+                  <dt>{reason}</dt>
+                  <dd>{count}</dd>
+                </div>
+              ))}
+            </dl>
+          )}
+        </div>
+      )}
       <div className="source-grid">
         {roadmap.map((source) => (
           <article
@@ -1696,6 +1787,7 @@ export default function App() {
   const [heroBuild, setHeroBuild] = useState(() => createEmptyHeroBuild());
   const [savedDrafts, setSavedDrafts] = useState(() => loadSavedDrafts());
   const [comparedPowers, setComparedPowers] = useState([]);
+  const [assignmentNotice, setAssignmentNotice] = useState("");
 
   useEffect(() => {
     setLibraryPage(1);
@@ -1706,7 +1798,14 @@ export default function App() {
   }, [category]);
 
   useEffect(() => {
-    window.localStorage.setItem(SAVED_DRAFTS_KEY, JSON.stringify(savedDrafts));
+    try {
+      window.localStorage.setItem(SAVED_DRAFTS_KEY, JSON.stringify(savedDrafts));
+    } catch (error) {
+      appLogger.warn("saved_drafts_persist_failed", {
+        error: serializeError(error),
+        draftCount: savedDrafts.length
+      });
+    }
   }, [savedDrafts]);
 
   const hasActiveFilters = useMemo(
@@ -1825,7 +1924,11 @@ export default function App() {
   function assignPower(power, slotId = activeSlot) {
     setHeroBuild((current) => {
       const next = assignPowerToSlot(current, power, slotId);
-      setActiveSlot(getNextSlotId(next, slotId));
+      const nextSlotId = getNextSlotId(next, slotId);
+      const assignedSlotLabel = HERO_SLOTS.find((slot) => slot.id === slotId)?.shortLabel ?? "slot";
+      const nextSlotLabel = HERO_SLOTS.find((slot) => slot.id === nextSlotId)?.shortLabel ?? assignedSlotLabel;
+      setActiveSlot(nextSlotId);
+      setAssignmentNotice(`Assigned ${power.name} to ${assignedSlotLabel}. Next slot: ${nextSlotLabel}.`);
       return next;
     });
   }
@@ -1849,6 +1952,7 @@ export default function App() {
 
   function clearSelections() {
     setHeroBuild(createEmptyHeroBuild());
+    setAssignmentNotice("");
   }
 
   function clearSlot(slotId) {
@@ -1913,6 +2017,7 @@ export default function App() {
 
     const savedDraft = {
       id: `${Date.now()}-${draft.heroName.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`,
+      schemaVersion: SAVED_DRAFT_SCHEMA_VERSION,
       name: draft.heroName,
       classification: draft.classification,
       selectedCount: draft.selectedCount,
@@ -1926,6 +2031,7 @@ export default function App() {
   function loadDraft(savedDraft) {
     setHeroBuild(savedDraft.heroBuild ?? createEmptyHeroBuild());
     setActiveSlot("primary");
+    setAssignmentNotice(`Loaded ${savedDraft.name || "saved draft"}.`);
     setView("forge");
   }
 
@@ -1979,6 +2085,11 @@ export default function App() {
                   canon {sourceCounts.canon || 0} · imported{" "}
                   {(sourceCounts.imported || 0).toLocaleString()}
                 </p>
+                {imported.source === "enriched" && imported.rankingManifest?.hiddenRecords > 0 && (
+                  <p className="quality-meta">
+                    {imported.rankingManifest.hiddenRecords.toLocaleString()} imported records hidden by quality gate
+                  </p>
+                )}
               </div>
             </section>
 
@@ -2032,6 +2143,7 @@ export default function App() {
                   totalMatches={totalMatches}
                   visible={visible}
                   importedStatus={imported.status}
+                  assignmentNotice={assignmentNotice}
                 />
               </div>
               <aside className="forge-aside">
@@ -2058,7 +2170,9 @@ export default function App() {
           <TaxonomyView library={library} categoryCounts={categoryCounts} />
         )}
 
-        {view === "sources" && <SourcesView />}
+        {view === "sources" && (
+          <SourcesView rankingManifest={imported.rankingManifest} importedSource={imported.source} />
+        )}
 
         <footer className="site-footer">
           Powers Forge · {sourceCounts.canon || 0} canon +{" "}

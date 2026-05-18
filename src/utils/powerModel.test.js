@@ -3,6 +3,21 @@ import { readFileSync } from "node:fs";
 import { DATA_SOURCE_STRATEGIES } from "../data/dataSources.js";
 import { getActiveDataSource, getDataSourceRoadmap, validateDataSources } from "./dataSourceModel.js";
 import { filterImportedPowers, getImportedStateOptions, getTopImportedTags } from "./importedPowerPool.js";
+import { createLogger, redactMetadata, serializeError } from "./logger.js";
+import {
+  createRankingProfile,
+  getPowerRankingDisplay,
+  getPopularityProfile,
+  getRiskLevel,
+  stripRankingAudit
+} from "./rankingModel.js";
+import {
+  SAVED_DRAFT_SCHEMA_VERSION,
+  getPublishedImportedRecords,
+  getVisibleEnrichedPowers,
+  normalizeSavedDraft,
+  normalizeSavedDrafts
+} from "./runtimeGuards.js";
 import {
   assignPowerToSlot,
   buildHeroDraft,
@@ -73,6 +88,44 @@ describe("power catalog model", () => {
   });
 });
 
+describe("structured logger", () => {
+  it("serializes errors without dropping message context", () => {
+    const error = new Error("Import failed");
+
+    expect(serializeError(error)).toMatchObject({
+      name: "Error",
+      message: "Import failed"
+    });
+  });
+
+  it("redacts sensitive metadata recursively", () => {
+    expect(redactMetadata({
+      token: "abc",
+      nested: { password: "secret", visible: "ok" }
+    })).toEqual({
+      token: "[REDACTED]",
+      nested: { password: "[REDACTED]", visible: "ok" }
+    });
+  });
+
+  it("writes JSON log payloads with correlation ids", () => {
+    const lines = [];
+    const logger = createLogger({
+      namespace: "test",
+      sink: { info: (line) => lines.push(line) },
+      getCorrelationId: () => "request-1"
+    });
+
+    const payload = logger.info("example_event", { visible: true });
+    const parsed = JSON.parse(lines[0]);
+
+    expect(payload.event).toBe("example_event");
+    expect(parsed.namespace).toBe("test");
+    expect(parsed.correlationId).toBe("request-1");
+    expect(parsed.visible).toBe(true);
+  });
+});
+
 describe("data source model", () => {
   it("keeps source definitions structurally valid", () => {
     expect(validateDataSources(DATA_SOURCE_STRATEGIES)).toEqual([]);
@@ -91,6 +144,184 @@ describe("data source model", () => {
   it("sorts source roadmap by priority", () => {
     const priorities = getDataSourceRoadmap(DATA_SOURCE_STRATEGIES).map((source) => source.priority);
     expect(priorities).toEqual([...priorities].sort((left, right) => left - right));
+  });
+});
+
+describe("runtime guards", () => {
+  it("keeps only usable published imported records", () => {
+    const records = getPublishedImportedRecords([
+      { state: "published", name: "Flight" },
+      { state: "submitted", name: "Draft" },
+      { state: "published", name: "" },
+      null
+    ]);
+
+    expect(records).toEqual([{ state: "published", name: "Flight" }]);
+  });
+
+  it("keeps only visible enriched powers", () => {
+    const powers = getVisibleEnrichedPowers([
+      {
+        id: "imported:1",
+        source: "imported",
+        name: "Visible Power",
+        stats: { risk: 4 },
+        ranking: { content: { defaultVisible: true } }
+      },
+      {
+        id: "imported:2",
+        source: "imported",
+        name: "Hidden Power",
+        stats: { risk: 9 },
+        ranking: { content: { defaultVisible: false } }
+      },
+      { id: "bad", name: "Missing Source" }
+    ]);
+
+    expect(powers.map((power) => power.name)).toEqual(["Visible Power"]);
+  });
+
+  it("normalizes saved drafts and adds schema versions", () => {
+    const heroBuild = createEmptyHeroBuild();
+    const draft = normalizeSavedDraft({
+      id: "draft-1",
+      name: "  Signal Guard  ",
+      classification: "Strategist",
+      selectedCount: 2,
+      savedAt: "2026-05-18T00:00:00.000Z",
+      heroBuild
+    });
+
+    expect(draft).toMatchObject({
+      schemaVersion: SAVED_DRAFT_SCHEMA_VERSION,
+      id: "draft-1",
+      name: "Signal Guard",
+      classification: "Strategist",
+      selectedCount: 2,
+      savedAt: "2026-05-18T00:00:00.000Z",
+      heroBuild
+    });
+  });
+
+  it("drops malformed saved drafts", () => {
+    expect(normalizeSavedDrafts([
+      { name: "No Build" },
+      { id: "valid", name: "Valid", heroBuild: createEmptyHeroBuild() }
+    ])).toHaveLength(1);
+  });
+});
+
+describe("ranking model", () => {
+  it("uses smoothed popularity so tiny samples are not treated as known picks", () => {
+    expect(getPopularityProfile({
+      preferenceRatio: 1,
+      timesPreferred: 1,
+      timesRejected: 0,
+      totalComparisons: 1
+    })).toMatchObject({
+      label: "unproven",
+      comparisonCount: 1
+    });
+
+    expect(getPopularityProfile({
+      preferenceRatio: 0.8,
+      timesPreferred: 80,
+      timesRejected: 20,
+      totalComparisons: 100
+    }).label).toBe("known-pick");
+  });
+
+  it("maps risk levels deterministically", () => {
+    expect(getRiskLevel(2)).toBe("low");
+    expect(getRiskLevel(5)).toBe("medium");
+    expect(getRiskLevel(8)).toBe("high");
+    expect(getRiskLevel(10)).toBe("extreme");
+  });
+
+  it("creates ranking profiles with role fit, confidence, and audit evidence", () => {
+    const power = normalizeImportedPower({
+      sourceId: 999,
+      name: "Reality Anything",
+      overview: "do anything by warping reality.",
+      description: "The user can change anything and everything in reality.",
+      pros: ["Unlimited options"],
+      cons: [],
+      tags: ["reality", "anything"],
+      state: "published",
+      preferenceRatio: 1,
+      timesPreferred: 1,
+      timesRejected: 0,
+      totalComparisons: 1
+    });
+    const ranking = createRankingProfile(power, {
+      generatedAt: "2026-05-18T00:00:00.000Z",
+      inputHash: "hash"
+    });
+
+    expect(ranking.rating).toBe(power.tier);
+    expect(ranking.scope).toBe("expansive");
+    expect(ranking.risk.level).toBe("extreme");
+    expect(ranking.constraint.requiredForPrimary).toBe(true);
+    expect(ranking.popularity.label).toBe("unproven");
+    expect(ranking.roleFit.primary.label).toMatch(/usable|strong/);
+    expect(ranking.quality).toMatchObject({
+      reviewed: false,
+      duplicateKey: "reality-anything",
+      clarity: "confusing",
+      canonCandidate: false
+    });
+    expect(ranking.quality.reasons).toContain("too-broad");
+    expect(ranking.evidence.scopeSignals.length).toBeGreaterThan(0);
+    expect(stripRankingAudit(ranking).evidence).toBeUndefined();
+    expect(stripRankingAudit(ranking).quality).toMatchObject({
+      defaultVisible: true,
+      duplicateKey: "reality-anything",
+      clarity: "confusing"
+    });
+  });
+
+  it("hides imported powers with unsafe content flags", () => {
+    const power = normalizeImportedPower({
+      sourceId: 1000,
+      name: "Terror Signal",
+      overview: "A power about terror and blackmail.",
+      description: "The user can terrorize crowds and blackmail people by spying on their private lives.",
+      pros: ["Information leverage"],
+      cons: ["Can ruin innocent lives"],
+      tags: ["terror", "blackmail"],
+      state: "published"
+    });
+    const ranking = createRankingProfile(power);
+
+    expect(ranking.content.defaultVisible).toBe(false);
+    expect(ranking.content.reasons).toEqual(expect.arrayContaining(["privacy-violation", "unsafe-real-world"]));
+  });
+
+  it("builds public ranking labels without exposing numeric score text", () => {
+    const power = {
+      source: "imported",
+      tier: "advanced",
+      stats: { risk: 8 },
+      ranking: {
+        rating: "advanced",
+        scope: "focused",
+        risk: { level: "high", score: 8 },
+        bestRole: "secondary",
+        confidence: { label: "inferred" },
+        popularity: { label: "niche-pick" }
+      }
+    };
+    const display = getPowerRankingDisplay(power);
+
+    expect(display).toMatchObject({
+      rating: "advanced",
+      scopeLabel: "Focused",
+      riskLabel: "High Risk",
+      bestRoleLabel: "Secondary",
+      confidenceLabel: "Inferred",
+      popularityLabel: "Niche Pick"
+    });
+    expect(Object.values(display).join(" ")).not.toContain("Score");
   });
 });
 

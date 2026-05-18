@@ -6,11 +6,17 @@
   "scripts": {
     "dev": "vite --host 0.0.0.0",
     "build": "vite build",
+    "docs:powers": "node scripts/generate-power-taxonomy-doc.mjs",
+    "enrich:powers": "node scripts/enrich-power-rankings.mjs",
+    "audit:powers": "node scripts/audit-power-assets.mjs",
+    "refresh:powers": "npm run import:superpowers && npm run enrich:powers && npm run docs:powers",
     "import:superpowers": "node scripts/import-superpower-list.mjs",
     "preview": "vite preview --host 0.0.0.0",
-    "test": "vitest run",
-    "test:watch": "vitest",
-    "lint": "eslint ."
+    "test": "vitest run src",
+    "test:e2e": "playwright test",
+    "test:watch": "vitest src",
+    "lint": "eslint .",
+    "verify": "npm run audit:powers && npm run test && npm run test:e2e && npm run lint && npm run build"
   },
   "dependencies": {
     "@vitejs/plugin-react": "^5.0.4",

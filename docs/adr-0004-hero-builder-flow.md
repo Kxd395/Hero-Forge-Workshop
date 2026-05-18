@@ -2,7 +2,7 @@
 
 ## Status
 
-Accepted
+Accepted, amended after origin/limitation refactor.
 
 ## Context
 
@@ -12,20 +12,24 @@ The app had disconnected data surfaces: starter canon cards, imported Superpower
 
 Use a shared power model across canon and imported powers, then assign selected powers into explicit hero slots.
 
-- `HERO_SLOTS` defines origin, primary, secondary, utility, and limitation roles.
-- `assignPowerToSlot` moves a power into exactly one slot, replacing single-slot values and capping secondary powers.
+- `HERO_SLOTS` tracks origin, primary, secondary, and utility build steps.
+- Origin is selected from dedicated story sources such as mutation, experiment, training, artifact, alien species, or cosmic event. It is not a power card and does not count toward the power total.
+- Power assignment only targets Primary, Secondary, or Utility slots.
+- Limits are derived from selected powers' weaknesses plus optional story constraints. Limitation is not a selectable power slot.
+- `assignPowerToSlot` moves a power into exactly one power slot, replacing single-slot values and capping secondary powers.
 - `buildHeroDraft` creates a deterministic alias, classification, aggregate stats, strength stack, weakness stack, tags, synergy notes, conflicts, readiness, and a character sheet.
 - The UI uses one card style for canon and imported powers. Slot assignment changes the action label, not the card family.
-- Library browsing is paginated with explicit next/previous controls, stat-oriented sort modes, subcategory chips, and slot-aware recommendations.
+- Library browsing is paginated with explicit next/previous controls, stat-oriented sort modes, subcategory chips, origin-biased ordering, and slot-aware recommendations.
 - Imported powers remain staged options, not canon records.
 
 ## Flow
 
-1. Pick the slot being filled.
-2. Search or filter the unified library.
-3. Assign a power into that slot.
-4. Review the generated character sheet, synergy, conflicts, and story hook.
-5. Future admin curation can promote drafts or powers into the canon.
+1. Pick an origin source so the hero has a power cause and recommendation bias.
+2. Pick the power slot being filled: Primary, Secondary, or Utility.
+3. Search or filter the unified library.
+4. Assign a power into that slot.
+5. Review the generated character sheet, synergy, conflicts, derived limits, and story hook.
+6. Future admin curation can promote drafts or powers into the canon.
 
 ## Rollback
 
@@ -33,7 +37,7 @@ Remove `src/utils/heroBuilder.js`, remove builder-related code from `src/App.jsx
 
 ## Complexity
 
-- Slot assignment/removal is `O(n)` for the small selected slot set because the model removes duplicates before placing a power.
+- Slot assignment/removal is `O(n)` for the small selected power set because the model removes duplicates before placing a power.
 - Draft generation is `O(n * m)`, where `n` is selected power count and `m` is the average number of strengths, weaknesses, and tags.
 - Imported-pool filtering remains `O(r * t)`, where `r` is imported record count and `t` is searchable text size. Sorting filtered matches is `O(k log k)`.
 - Pagination render cost is `O(p)`, where `p` is the selected page size.

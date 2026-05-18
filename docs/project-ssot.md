@@ -409,6 +409,7 @@ npm run test
 npm run lint
 npm run build
 npm run import:superpowers
+npm run docs:powers
 ```
 
 ## Source Ownership
@@ -419,16 +420,32 @@ npm run import:superpowers
 | Styling | `src/styles.css` |
 | Canon powers/categories | `src/data/superpowers.js` |
 | Data source roadmap | `src/data/dataSources.js` |
+| User guide | `docs/user-guide.md` |
+| Data dictionary | `docs/data-dictionary.md` |
+| Ranking pipeline spec | `docs/ranking-pipeline.md` |
+| Character creation model | `docs/character-creation-model.md` |
+| Import runbook | `docs/import-runbook.md` |
+| Deployment runbook | `docs/deployment-runbook.md` |
+| Testing strategy | `docs/testing-strategy.md` |
+| UX flows | `docs/ux-flows.md` |
+| Release checklist | `docs/release-checklist.md` |
+| Type-safety baseline | `docs/type-safety.md` |
+| Running work log | `docs/running-log.md` |
+| Ranking schema contract | `docs/ranking-schema.md` |
+| Ranking enrichment runbook | `docs/ranking-enrichment-runbook.md` |
+| External ranking review handoff | `docs/review/hero-forge-ranking-handoff/` |
 | Power model validation/scoring | `src/utils/powerModel.js` |
 | Unified power normalization/filtering | `src/utils/powerLibrary.js` |
 | Hero build/draft generation | `src/utils/heroBuilder.js` |
 | Imported pool filtering helpers | `src/utils/importedPowerPool.js` |
 | Superpower List import script | `scripts/import-superpower-list.mjs` |
+| Power taxonomy doc generator | `scripts/generate-power-taxonomy-doc.mjs` |
+| Documentation map/backlog | `docs/documentation-map.md` |
+| Power catalog taxonomy | `docs/power-catalog-taxonomy.md` |
 | Model tests | `src/utils/powerModel.test.js` |
 
 ## Known Technical Debt
 
-- `docs/design.md` still describes older limitation/origin behavior in some sections. Keep it as historical design context until it is revised.
 - Imported power scoring is coarse. Replace user-facing numeric score with ranking labels.
 - Ranking should eventually be precomputed into enriched JSON instead of inferred entirely at runtime.
 - `heroBuild.limitation` remains for backward compatibility but should not be used by new UI.
