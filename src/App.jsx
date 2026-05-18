@@ -866,7 +866,7 @@ function PowerLibrary({
   }
 
   return (
-    <section className="panel catalog-panel" aria-label="Power library">
+    <section id="power-library" className="panel catalog-panel" aria-label="Power library" tabIndex={-1}>
       <div className="section-heading">
         <div>
           <p className="eyebrow">Unified Power Library</p>
@@ -1352,7 +1352,7 @@ function HeroDraftPanel({
   }, [copyStatus]);
 
   return (
-    <section className="hero-builder" aria-label="Hero draft">
+    <section id="hero-draft" className="hero-builder" aria-label="Hero draft" tabIndex={-1}>
       <header className="builder-summary">
         <div>
           <p className="eyebrow">Hero Forge</p>
@@ -2292,6 +2292,10 @@ export default function App() {
 
   return (
     <>
+      <nav className="skip-links" aria-label="Skip links">
+        <a href="#power-library">Skip to power library</a>
+        <a href="#hero-draft">Skip to hero draft</a>
+      </nav>
       <TopBar view={view} onViewChange={setView} selectedCount={selectedPowers.length} />
 
       <main className="app-shell">

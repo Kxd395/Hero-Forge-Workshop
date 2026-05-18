@@ -135,6 +135,7 @@ Current automated coverage:
 - risk/ranking labels render
 - search finds a power
 - Primary assignment shows visible status feedback
+- skip links let keyboard users jump to the power library and Hero draft landmarks
 - compare tray can assign directly to Utility
 - mobile viewport loads, searches, and keeps the forge panel reachable
 - mobile power detail popovers stay inside the viewport and use a readable ranking layout
@@ -151,7 +152,7 @@ Additional browser flows still needed:
 1. Select an origin.
 2. Assign Primary, Secondary, and Utility.
 3. Reload a saved draft with origin and profile fields.
-4. Add full keyboard traversal around filters, assignment buttons, compare tray, and Hero draft.
+4. Expand keyboard traversal around filters, assignment buttons, compare tray, and Hero draft internals.
 5. Add screenshot snapshots for the mobile and desktop layout smoke states.
 
 Mobile and sticky-panel geometry smoke is automated at a DOM/layout level. It still needs screenshot snapshots to catch purely visual regressions.

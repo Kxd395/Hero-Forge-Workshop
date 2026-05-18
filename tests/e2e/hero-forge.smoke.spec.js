@@ -63,6 +63,31 @@ test("supports keyboard-only search and primary assignment", async ({ page }) =>
   await expect(page.getByRole("region", { name: "Hero draft" }).locator(".slot-stack").getByText("Fire Control")).toBeVisible();
 });
 
+test("supports skip links for keyboard navigation between library and draft", async ({ page }) => {
+  await page.goto("/");
+
+  await page.keyboard.press("Tab");
+  await expect(page.getByRole("link", { name: "Skip to power library" })).toBeFocused();
+  await page.keyboard.press("Tab");
+  await expect(page.getByRole("link", { name: "Skip to hero draft" })).toBeFocused();
+  await page.keyboard.press("Enter");
+  await expect(page.locator("#hero-draft")).toBeFocused();
+
+  await page.goto("/");
+  await page.evaluate(() => {
+    if (globalThis.document.activeElement instanceof globalThis.HTMLElement) {
+      globalThis.document.activeElement.blur();
+    }
+  });
+  await page.keyboard.press("Tab");
+  await expect(page.getByRole("link", { name: "Skip to power library" })).toBeFocused();
+  await page.keyboard.press("Enter");
+  await expect(page.locator("#power-library")).toBeFocused();
+
+  await page.keyboard.press("Tab");
+  await expect(page.getByPlaceholder(/search by name/i)).toBeFocused();
+});
+
 test("compares a power and assigns it directly to utility", async ({ page }) => {
   await page.goto("/");
 

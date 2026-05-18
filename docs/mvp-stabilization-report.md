@@ -113,12 +113,13 @@ npm run verify
 Current automated coverage:
 
 - 54 Vitest unit/model tests
-- 17 Playwright browser smoke tests
+- 18 Playwright browser smoke tests
 
 Browser smoke coverage includes:
 
 - enriched library load
 - no public `Score N` chips
+- keyboard skip links to the power library and Hero draft
 - primary assignment feedback
 - compare-tray direct assignment
 - mobile-width library/forge usability
